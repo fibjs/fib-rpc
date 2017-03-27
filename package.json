@@ -1,0 +1,29 @@
+{
+    "name": "fib-rpc",
+    "version": "0.0.1",
+    "description": "Remote Procedure Calling for fibjs",
+    "main": "lib/index.js",
+    "repository": "git://github.com/xicilion/fib-rpc.git",
+    "author": "Liu Hu <lion@9465.net>",
+    "homepage": "https://github.com/xicilion/fib-rpc",
+    "license": "MIT",
+    "keywords": [
+        "rpc",
+        "json",
+        "xml",
+        "fibjs"
+    ],
+    "scripts": {
+        "ci": "fibjs test.js"
+    },
+    "devDependencies": {
+        "@fibjs/ci": "^1.0.0",
+        "lodash": "^4.17.4"
+    },
+    "ci": {
+        "type": "travis"
+    },
+    "dependencies": {
+        "fib-pool": "^1.0.1"
+    }
+}
