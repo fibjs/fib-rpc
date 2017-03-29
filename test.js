@@ -42,7 +42,7 @@ describe("websocket rpc", function() {
     var remoting;
 
     before(function() {
-        svr = new http.Server(8811, new ws.Handler(rpc.handler({
+        svr = new http.Server(8811, ws.upgrade(rpc.handler({
             test: function(v1, v2) {
                 return v1 + v2;
             }
