@@ -8,33 +8,93 @@ var ws = require('ws');
 describe("rpc", () => {
     var ss = [];
 
-    var m = new http.Request();
-
-    m.value = 'test/tttt/tttt/';
-    m.setHeader("Content-Type", "application/json, charset=utf-8;");
-    m.body.write(JSON.stringify({
-        method: 'aaaa',
-        params: [100, 200],
-        id: 1234
-    }));
-
     after(() => {
         ss.forEach((s) => {
             s.close();
         });
     });
 
-    it("handler", () => {
-        var jr = rpc.handler(function(p1, p2) {
+    var jr = rpc.handler({
+        aaaa: function(p1, p2) {
             return p1 + ',' + p2;
-        });
+        }
+    });
+
+    function _call(r) {
+        var m = new http.Request();
+
+        m.value = 'test/tttt/tttt/';
+        m.setHeader("Content-Type", "application/json, charset=utf-8;");
+        m.body.write(JSON.stringify(r));
 
         jr(m);
 
         m.response.body.rewind();
-        assert.equal(m.response.body.read().toString(),
-            '{"id":1234,"result":"100,200"}');
+        return m.response.readAll().toString();
+    }
+
+    it("handler", () => {
+        assert.equal(_call({
+            method: 'aaaa',
+            params: [100, 200],
+            id: 1234
+        }), '{"id":1234,"result":"100,200"}');
     });
+
+    it("content type missing", () => {
+        var m = new http.Request();
+
+        m.value = 'test/tttt/tttt/';
+        m.body.write(JSON.stringify({
+            method: 'aaaa',
+            params: [100, 200],
+            id: 1234
+        }));
+
+        jr(m);
+
+        m.response.body.rewind();
+        assert.equal(m.response.readAll().toString(),
+            '{"id":-1,"error":{"code":-32600,"message":"Content-Type is missing."}}');
+    });
+
+    it("method missing", () => {
+        assert.equal(_call({
+            params: [100, 200],
+            id: 1234
+        }), '{"id":1234,"error":{"code":-32600,"message":"Invalid Request."}}');
+    });
+
+    it("method not exists", () => {
+        assert.equal(_call({
+            method: 'aaaa1',
+            params: [100, 200],
+            id: 1234
+        }), '{"id":1234,"error":{"code":-32601,"message":"Method not found."}}');
+    });
+
+    it("id missing", () => {
+        assert.equal(_call({
+            method: 'aaaa',
+            params: [100, 200]
+        }), '{"result":"100,200"}');
+    });
+
+    it("params missing", () => {
+        assert.equal(_call({
+            method: 'aaaa',
+            id: 1234
+        }), '{"id":1234,"result":"undefined,undefined"}');
+    });
+
+    it("Invalid params", () => {
+        assert.equal(_call({
+            method: 'aaaa',
+            params: 123,
+            id: 1234
+        }), '{"id":1234,"error":{"code":-32602,"message":"Invalid params."}}');
+    });
+
 });
 
 describe("websocket rpc", function() {
