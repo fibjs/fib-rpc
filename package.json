@@ -3,9 +3,9 @@
     "version": "0.0.2",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib/index.js",
-    "repository": "git://github.com/xicilion/fib-rpc.git",
+    "repository": "git://github.com/fibjs/fib-rpc.git",
     "author": "Liu Hu <lion@9465.net>",
-    "homepage": "https://github.com/xicilion/fib-rpc",
+    "homepage": "https://github.com/fibjs/fib-rpc",
     "license": "MIT",
     "keywords": [
         "rpc",
