@@ -77,7 +77,7 @@ describe("rpc", () => {
                 '{"id":-1,"error":{"code":-32600,"message":"Invalid Content-Type."}}');
         }
 
-        ["application/json, charset=utf-8;","application/json-error;"].forEach(function(ctype){
+        ["charset=utf-8;application/json;","application/json, charset=utf-8;","application/json-error;"].forEach(function(ctype){
             error_call(ctype);
         });
     });
