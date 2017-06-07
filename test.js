@@ -24,7 +24,7 @@ describe("rpc", () => {
         var m = new http.Request();
 
         m.value = 'test/tttt/tttt/';
-        m.setHeader("Content-Type", "application/json, charset=utf-8;");
+        m.setHeader("Content-Type", "application/json;charset=utf-8;");
         m.body.write(JSON.stringify(r));
 
         jr(m);
@@ -56,6 +56,30 @@ describe("rpc", () => {
         m.response.body.rewind();
         assert.equal(m.response.readAll().toString(),
             '{"id":-1,"error":{"code":-32600,"message":"Content-Type is missing."}}');
+    });
+
+    it("content type Invalid", () => {
+        function error_call(ctype){
+            var m = new http.Request();
+
+            m.value = 'test/tttt/tttt/';
+            m.setHeader("Content-Type", ctype);
+            m.body.write(JSON.stringify({
+                method: 'aaaa',
+                params: [100, 200],
+                id: 1234
+            }));
+
+            jr(m);
+
+            m.response.body.rewind();
+            assert.equal(m.response.readAll().toString(),
+                '{"id":-1,"error":{"code":-32600,"message":"Invalid Content-Type."}}');
+        }
+
+        ["charset=utf-8;application/json;","application/json, charset=utf-8;","application/json-error;"].forEach(function(ctype){
+            error_call(ctype);
+        });
     });
 
     it("method missing", () => {
