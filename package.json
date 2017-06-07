@@ -1,6 +1,6 @@
 {
     "name": "fib-rpc",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib/index.js",
     "repository": "git://github.com/fibjs/fib-rpc.git",
@@ -24,6 +24,6 @@
         "type": "travis"
     },
     "dependencies": {
-        "fib-pool": "^1.0.3"
+        "fib-pool": "^1.1.0"
     }
 }
