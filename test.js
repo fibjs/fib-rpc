@@ -15,7 +15,7 @@ describe("rpc", () => {
     });
 
     var jr = rpc.handler({
-        aaaa: function(p1, p2) {
+        aaaa: function (p1, p2) {
             return p1 + ',' + p2;
         }
     });
@@ -24,8 +24,7 @@ describe("rpc", () => {
         var m = new http.Request();
 
         m.value = 'test/tttt/tttt/';
-        m.setHeader("Content-Type", "application/json;charset=utf-8;");
-        m.body.write(JSON.stringify(r));
+        m.json(r);
 
         jr(m);
 
@@ -55,11 +54,11 @@ describe("rpc", () => {
 
         m.response.body.rewind();
         assert.equal(m.response.readAll().toString(),
-            '{"id":-1,"error":{"code":-32600,"message":"Content-Type is missing."}}');
+            '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}');
     });
 
     it("content type Invalid", () => {
-        function error_call(ctype){
+        function error_call(ctype) {
             var m = new http.Request();
 
             m.value = 'test/tttt/tttt/';
@@ -74,10 +73,10 @@ describe("rpc", () => {
 
             m.response.body.rewind();
             assert.equal(m.response.readAll().toString(),
-                '{"id":-1,"error":{"code":-32600,"message":"Invalid Content-Type."}}');
+                '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}');
         }
 
-        ["charset=utf-8;application/json;","application/json, charset=utf-8;","application/json-error;"].forEach(function(ctype){
+        ["charset=utf-8;application/json;", "application/json, charset=utf-8;", "application/json-error;"].forEach(function (ctype) {
             error_call(ctype);
         });
     });
@@ -121,67 +120,67 @@ describe("rpc", () => {
 
 });
 
-describe("websocket rpc", function() {
+describe("websocket rpc", function () {
     var svr;
     var remoting;
 
-    before(function() {
+    before(function () {
         svr = new http.Server(8811, ws.upgrade(rpc.handler({
-            test: function(v1, v2) {
+            test: function (v1, v2) {
                 return v1 + v2;
             }
         })));
         svr.asyncRun();
     })
 
-    after(function() {
+    after(function () {
         svr.stop();
         remoting = undefined;
     })
 
-    it("connect", function() {
+    it("connect", function () {
         remoting = rpc.connect("ws://127.0.0.1:8811");
     });
 
-    it("test", function() {
+    it("test", function () {
         assert.equal(remoting("test")(1, 2), 3);
     });
 
-    it("id not exists", function() {
-        assert.throws(function() {
+    it("id not exists", function () {
+        assert.throws(function () {
             remoting("unknown_id")(1, 2);
         });
     });
 });
 
-describe("new websocket rpc", function() {
+describe("new websocket rpc", function () {
     var svr;
     var remoting;
 
-    before(function() {
+    before(function () {
         svr = new http.Server(8811, ws.upgrade(rpc.handler({
-            test: function(v1, v2) {
+            test: function (v1, v2) {
                 return v1 + v2;
             }
         })));
         svr.asyncRun();
     })
 
-    after(function() {
+    after(function () {
         svr.stop();
         remoting = undefined;
     })
 
-    it("connect", function() {
+    it("connect", function () {
         remoting = rpc.connect1("ws://127.0.0.1:8811");
     });
 
-    it("test", function() {
+    it("test", function () {
         assert.equal(remoting.test(1, 2), 3);
     });
 
-    it("id not exists", function() {
-        assert.throws(function() {
+    it("id not exists", function () {
+        assert.throws(function () {
             remoting.unknown_id(1, 2);
         });
     });
