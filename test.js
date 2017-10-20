@@ -143,39 +143,6 @@ describe("websocket rpc", function () {
     });
 
     it("test", function () {
-        assert.equal(remoting("test")(1, 2), 3);
-    });
-
-    it("id not exists", function () {
-        assert.throws(function () {
-            remoting("unknown_id")(1, 2);
-        });
-    });
-});
-
-describe("new websocket rpc", function () {
-    var svr;
-    var remoting;
-
-    before(function () {
-        svr = new http.Server(8811, ws.upgrade(rpc.handler({
-            test: function (v1, v2) {
-                return v1 + v2;
-            }
-        })));
-        svr.asyncRun();
-    })
-
-    after(function () {
-        svr.stop();
-        remoting = undefined;
-    })
-
-    it("connect", function () {
-        remoting = rpc.connect1("ws://127.0.0.1:8811");
-    });
-
-    it("test", function () {
         assert.equal(remoting.test(1, 2), 3);
     });
 
