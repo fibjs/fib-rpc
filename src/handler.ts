@@ -1,6 +1,8 @@
-"use strict";
+import { FibRpcWsSocketMessage, FibRpcCallee, FibRpcInvokeId, FibRpcCode, FibRpcInvokeResult, FibRpcFnHash, FibRpcFnPayload, FibRpcWsCallee, FibRpcHttpCallee, FibRpcInvokePayload, FibRpcInvokeArg, FibRpcGenerator, FibRpcHdlr, FibRpcInvoke } from "../@types";
+
 const util = require("util");
-function set_error(id, code, message) {
+
+function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRpcInvokeResult {
     return {
         id: id,
         error: {
@@ -9,55 +11,63 @@ function set_error(id, code, message) {
         }
     };
 }
-const handler = function (func) {
-    const invoke = function (m) {
-        var o;
+
+const handler: FibRpcGenerator = function (func: FibRpcFnPayload) {
+    const invoke: FibRpcInvoke = function (m: FibRpcInvokeArg): FibRpcInvokeResult {
+        var o: FibRpcInvokePayload;
         try {
             o = m.json();
-        }
-        catch (e) {
+        } catch (e) {
             return set_error(-1, -32700, "Parse error.");
         }
+
         var method = o.method;
+
         if (!method)
             return set_error(o.id, -32600, "Invalid Request.");
+
         var params = o.params;
+
         if (params === undefined)
             params = [];
+
         if (!Array.isArray(params))
             return set_error(o.id, -32602, "Invalid params.");
-        var f;
+
+        var f: Function;
         if (!util.isFunction(func)) {
-            f = func[method];
+            f = (func as FibRpcFnHash)[method];
             if (!f)
                 return set_error(o.id, -32601, "Method not found.");
+        } else {
+            f = (func as Function);
         }
-        else {
-            f = func;
-        }
+
         var r;
         try {
             r = f.apply(m, params);
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e.stack);
             return set_error(o.id, -32603, "Internal error.");
         }
+
         return {
             id: o.id,
             result: r
         };
-    };
-    const _hdr = function (m) {
+    }
+
+    const _hdr: FibRpcHdlr = function (m: FibRpcCallee) {
         if ('onmessage' in m) {
-            m.onmessage = function (msg) {
+            (m as FibRpcWsCallee).onmessage = function (msg: FibRpcWsSocketMessage) {
                 this.send(JSON.stringify(invoke(msg)));
             };
-        }
-        else {
-            m.response.json(invoke(m));
+        } else {
+            (m as FibRpcHttpCallee).response.json(invoke(m));
         }
     };
+
     return _hdr;
-};
-module.exports = handler;
+}
+
+export = handler;
