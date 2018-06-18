@@ -1,23 +1,29 @@
-"use strict";
-const ws = require("ws");
-const coroutine = require("coroutine");
+import * as ws from "ws";
+import coroutine = require("coroutine");
+import { FibRpcWsConnUrl, FibRpcWsConnHash, FibRpcWsConnHashInfo, FibRpcInvokeResult, FibRpcWsSocketMessage } from "../@types";
+
 const slice = Array.prototype.slice;
-const errCodeMsg = require("./err_code_msg");
-module.exports = function (url) {
-    var sock;
+
+import errCodeMsg = require('./err_code_msg');
+
+export = function (url: FibRpcWsConnUrl) {
+    var sock: ws.Socket;
     var id = 0;
+
     /* start queue */
-    var sq = {};
-    var sq_cnt = 0;
+    var sq: FibRpcWsConnHash = {};
+    var sq_cnt: number = 0;
+
     /* reconnect queue */
-    var rq = {};
-    var rq_cnt = 0;
+    var rq: FibRpcWsConnHash = {};
+    var rq_cnt: number = 0;
+
     function reconnect() {
         sock = new ws.Socket(url);
         sock.onclose = () => {
             if (rq_cnt) {
                 for (var r in rq) {
-                    var o = rq[r];
+                    var o: FibRpcWsConnHashInfo = rq[r];
                     o.v = {
                         id: o.r.id,
                         error: {
@@ -27,19 +33,25 @@ module.exports = function (url) {
                     };
                     o.e.set();
                 }
+
                 rq = {};
                 rq_cnt = 0;
             }
+
             reconnect();
         };
+
         sock.onerror = (evt) => {
             console.error(evt);
         };
+
         sock.onopen = () => {
             if (sq_cnt) {
                 for (var r in sq) {
-                    var o = sq[r];
+                    var o: FibRpcWsConnHashInfo = sq[r];
+
                     sock.send(JSON.stringify(o.r));
+
                     rq[o.r.id] = o;
                     rq_cnt++;
                 }
@@ -47,24 +59,28 @@ module.exports = function (url) {
                 sq_cnt = 0;
             }
         };
-        sock.onmessage = (m) => {
-            var v = m.json();
-            var o = rq[v.id];
+
+        sock.onmessage = (m: FibRpcWsSocketMessage) => {
+            var v: FibRpcInvokeResult = m.json();
+            var o: FibRpcWsConnHashInfo = rq[v.id];
             if (o !== undefined) {
                 delete rq[v.id];
                 rq_cnt--;
             }
+
             o.v = v;
             o.e.set();
         };
     }
+
     reconnect();
+
     return new Proxy({}, {
-        get: (target, name) => {
+        get: (target, name: string) => {
             if (!(name in target)) {
                 return target[name] = function () {
                     var _id = id++;
-                    var o = {
+                    var o: FibRpcWsConnHashInfo = {
                         r: {
                             id: _id,
                             method: name,
@@ -72,24 +88,28 @@ module.exports = function (url) {
                         },
                         e: new coroutine.Event()
                     };
+
                     try {
                         sock.send(JSON.stringify(o.r));
+
                         rq[_id] = o;
                         rq_cnt++;
-                    }
-                    catch (e) {
+                    } catch (e) {
                         sq[_id] = o;
                         sq_cnt++;
                     }
+
                     o.e.wait();
+
                     if (o.v.error)
                         throw o.v.error.message;
+
                     return o.v.result;
                 };
             }
             return target[name];
         },
-        set: (target, name, value) => {
+        set: (target, name: string, value) => {
             throw '"' + name + '" is read-only.';
         }
     });
