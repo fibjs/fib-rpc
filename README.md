@@ -5,4 +5,50 @@
 
 Remote Procedure Calling for fibjs
 
-## Core Conceptions
+## Introduction
+
+`fib-rpc` is working on dispatching of remote procedure calling, it supports both http request and websocket(**recommended**)
+
+## Get Started
+
+```
+npm i -S fib-rpc
+```
+
+## Usage
+
+you can use it with `http.Request`
+```javascript
+var js_remote = rpc.handler({
+    foo: function (p1, p2) {
+        return p1 + ',' + p2;
+    }
+});
+
+function http_call(r) {
+    var m = new http.Request();
+
+    m.value = 'test/tttt/tttt/';
+    m.json(r);
+
+    js_remote(m);
+
+    m.response.body.rewind();
+    return m.response.readAll().toString();
+}
+
+var result = http_call({
+    // method is required
+    method: 'foo',
+    // params is required and must be array
+    params: [100, 200],
+    // id is required
+    id: 1234
+})
+
+assert.equal(result, '{"id":1234,"result":"100,200"}');
+```
+
+but in most cases, you may prefer use it with `ws.Socket`, learn about usage from test item 'websocket rpc' in [test.js].
+
+[test.js]:test.js#L123:1

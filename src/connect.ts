@@ -4,6 +4,8 @@ import { FibRpcWsConnUrl, FibRpcWsConnHash, FibRpcWsConnHashInfo, FibRpcInvokeRe
 
 const slice = Array.prototype.slice;
 
+import errCodeMsg = require('./err_code_msg');
+
 export = function (url: FibRpcWsConnUrl) {
     var sock: ws.Socket;
     var id = 0;
@@ -26,7 +28,7 @@ export = function (url: FibRpcWsConnUrl) {
                         id: o.r.id,
                         error: {
                             code: -32000,
-                            message: 'Server disconnected.'
+                            message: errCodeMsg["32000"]
                         }
                     };
                     o.e.set();

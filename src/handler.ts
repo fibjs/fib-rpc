@@ -1,5 +1,6 @@
 import { FibRpcWsSocketMessage, FibRpcCallee, FibRpcInvokeId, FibRpcCode, FibRpcInvokeResult, FibRpcFnHash, FibRpcFnPayload, FibRpcWsCallee, FibRpcHttpCallee, FibRpcInvokePayload, FibRpcInvokeArg, FibRpcGenerator, FibRpcHdlr, FibRpcInvoke } from "../@types";
 
+import errCodeMsg = require('./err_code_msg')
 const util = require("util");
 
 function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRpcInvokeResult {
@@ -18,13 +19,13 @@ const handler: FibRpcGenerator = function (func: FibRpcFnPayload) {
         try {
             o = m.json();
         } catch (e) {
-            return set_error(-1, -32700, "Parse error.");
+            return set_error(-1, -32700, errCodeMsg["32700"]);
         }
 
         var method = o.method;
 
         if (!method)
-            return set_error(o.id, -32600, "Invalid Request.");
+            return set_error(o.id, -32600, errCodeMsg["32600"]);
 
         var params = o.params;
 
@@ -32,13 +33,13 @@ const handler: FibRpcGenerator = function (func: FibRpcFnPayload) {
             params = [];
 
         if (!Array.isArray(params))
-            return set_error(o.id, -32602, "Invalid params.");
+            return set_error(o.id, -32602, errCodeMsg["32602"]);
 
         var f: Function;
         if (!util.isFunction(func)) {
             f = (func as FibRpcFnHash)[method];
             if (!f)
-                return set_error(o.id, -32601, "Method not found.");
+                return set_error(o.id, -32601, errCodeMsg["32601"]);
         } else {
             f = (func as Function);
         }
@@ -48,7 +49,7 @@ const handler: FibRpcGenerator = function (func: FibRpcFnPayload) {
             r = f.apply(m, params);
         } catch (e) {
             console.error(e.stack);
-            return set_error(o.id, -32603, "Internal error.");
+            return set_error(o.id, -32603, errCodeMsg["32603"]);
         }
 
         return {
