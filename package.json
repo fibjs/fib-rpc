@@ -1,6 +1,6 @@
 {
     "name": "fib-rpc",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib/index.js",
     "types": "@types/index.d.ts",
@@ -19,8 +19,8 @@
         "ci": "fibjs test.js"
     },
     "devDependencies": {
-        "@fibjs/ci": "^2.0.0",
-        "@types/fibjs": "github:fibjs/fib-types#v1.0.7",
+        "@fibjs/ci": "^2.1.0",
+        "@types/fibjs": "^0.25.2",
         "fib-typify": "^0.1.3"
     },
     "ci": {
