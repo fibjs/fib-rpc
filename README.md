@@ -7,7 +7,9 @@ Remote Procedure Calling for fibjs
 
 ## Introduction
 
-`fib-rpc` is working on dispatching of remote procedure calling, it supports both http request and websocket(**recommended**)
+`fib-rpc` is working on dispatching of remote procedure calling, it supports both http request and websocket(**recommended**).
+
+obviously, it follows [JSON-RPC] protocol.
 
 ## Get Started
 
@@ -49,6 +51,8 @@ var result = http_call({
 assert.equal(result, '{"id":1234,"result":"100,200"}');
 ```
 
-but in most cases, you may prefer use it with `ws.Socket`, learn about usage from test item 'websocket rpc' in [test.js].
+but in most cases, you may prefer using it with `ws.Socket`, learn about usage from test case `'websocket rpc'` in [test.js].
 
 [test.js]:test.js#L123:1
+
+[JSON-RPC]:https://www.jsonrpc.org/specification#overview

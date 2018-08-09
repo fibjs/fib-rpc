@@ -1,12 +1,12 @@
 import * as ws from "ws";
 import coroutine = require("coroutine");
-import { FibRpcWsConnUrl, FibRpcWsConnHash, FibRpcWsConnHashInfo, FibRpcInvokeResult, FibRpcWsSocketMessage } from "../@types";
+import { FibRpcWsConnUrl, FibRpcWsConnHash, FibRpcWsConnHashInfo, FibRpcInvokedResult, FibRpcWsSocketMessage, FibRpcConnect } from "../@types";
 
 const slice = Array.prototype.slice;
 
 import errCodeMsg = require('./err_code_msg');
 
-export = function (url: FibRpcWsConnUrl) {
+const connect: FibRpcConnect = function (url: FibRpcWsConnUrl) {
     var sock: ws.Socket;
     var id = 0;
 
@@ -61,7 +61,7 @@ export = function (url: FibRpcWsConnUrl) {
         };
 
         sock.onmessage = (m: FibRpcWsSocketMessage) => {
-            var v: FibRpcInvokeResult = m.json();
+            var v: FibRpcInvokedResult = m.json();
             var o: FibRpcWsConnHashInfo = rq[v.id];
             if (o !== undefined) {
                 delete rq[v.id];
@@ -114,3 +114,5 @@ export = function (url: FibRpcWsConnUrl) {
         }
     });
 };
+
+export = connect;
