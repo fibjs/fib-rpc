@@ -13,8 +13,11 @@ interface JsonRpcParamObjectType {
 type JsonRpcParamArrayType = (JsonRpcPrimitive | JsonRpcParamObjectType | Array<JsonRpcPrimitive | JsonRpcParamObjectType>)[]
 type JsonRpcParamsType = JsonRpcParamObjectType | JsonRpcParamArrayType
 
+type JsonRpcRestStyleParamsType = (JsonRpcPrimitive | JsonRpcParamObjectType)[]
+
+// type JsonRpcInvokedFunction = Function
 interface JsonRpcInvokedFunction {
-    (this: any, params: JsonRpcParamsType): any
+    (...params: JsonRpcRestStyleParamsType): any
 }
 
 type FibRpcResultData = any
