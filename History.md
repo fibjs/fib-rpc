@@ -1,7 +1,15 @@
 
-v0.2.1 / 2018-08-10
+v0.2.2 / 2018-08-20
 ==================
 
+  * add '0.26.1' to ci config, and fix one type declaration
+  * better type declaration.
+  * Merge pull request #3 from richardo2016/master
+
+v0.2.1 / 2018-08-10
+===================
+
+  * Release v0.2.1
   * upgrade devDependencies's version.
   * Merge pull request #2 from richardo2016/master
 
