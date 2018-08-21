@@ -1,9 +1,9 @@
-import { FibRpcWsSocketMessage, FibRpcCallee, FibRpcInvokeId, FibRpcCode, FibRpcInvokeResult, FibRpcFnHash, FibRpcFnPayload, FibRpcWsCallee, FibRpcHttpCallee, FibRpcInvokePayload, FibRpcInvokeArg, FibRpcGenerator, FibRpcHdlr, FibRpcInvoke } from "../@types";
+import { FibRpcWsSocketMessage, FibRpcCallee, FibRpcInvokeId, FibRpcCode, FibRpcInvokedResult, FibRpcFnHash, FibRpcFnPayload, FibRpcWsCallee, FibRpcHttpCallee, FibRpcInvokePayload, FibRpcInvokeArg, FibRpcHdlr, FibRpcInvoke, FibRpcHandler, JsonRpcInvokedFunction } from "../@types";
 
 import errCodeMsg = require('./err_code_msg')
 const util = require("util");
 
-function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRpcInvokeResult {
+function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRpcInvokedResult {
     return {
         id: id,
         error: {
@@ -13,8 +13,8 @@ function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRp
     };
 }
 
-const handler: FibRpcGenerator = function (func: FibRpcFnPayload) {
-    const invoke: FibRpcInvoke = function (m: FibRpcInvokeArg): FibRpcInvokeResult {
+const handler: FibRpcHandler = function (func: FibRpcFnPayload) {
+    const invoke: FibRpcInvoke = function (m: FibRpcInvokeArg): FibRpcInvokedResult {
         var o: FibRpcInvokePayload;
         try {
             o = m.json();
@@ -35,13 +35,13 @@ const handler: FibRpcGenerator = function (func: FibRpcFnPayload) {
         if (!Array.isArray(params))
             return set_error(o.id, -32602, errCodeMsg["32602"]);
 
-        var f: Function;
+        var f: JsonRpcInvokedFunction;
         if (!util.isFunction(func)) {
             f = (func as FibRpcFnHash)[method];
             if (!f)
                 return set_error(o.id, -32601, errCodeMsg["32601"]);
         } else {
-            f = (func as Function);
+            f = (func as JsonRpcInvokedFunction);
         }
 
         var r;
