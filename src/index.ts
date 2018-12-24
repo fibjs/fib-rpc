@@ -1,2 +1,6 @@
-export const handler = require('./handler');
-export const connect = require('./connect');
+/// <reference path="../@types/index.d.ts" />
+
+import handler = require('./handler');
+export { handler }
+import connect = require('./connect');
+export { connect }

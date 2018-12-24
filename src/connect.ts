@@ -1,21 +1,22 @@
-import * as ws from "ws";
+/// <reference path="../@types/index.d.ts" />
+
+import ws = require("ws");
 import coroutine = require("coroutine");
-import { FibRpcWsConnUrl, FibRpcWsConnHash, FibRpcWsConnHashInfo, FibRpcInvokedResult, FibRpcWsSocketMessage, FibRpcConnect } from "../@types";
 
 const slice = Array.prototype.slice;
 
 import errCodeMsg = require('./err_code_msg');
 
-const connect: FibRpcConnect = function (url: FibRpcWsConnUrl) {
+const connect: FibRpcConnectModule.FibRpcConnect = function (url: FibRpcConnectModule.FibRpcWsConnUrl) {
     var sock: ws.Socket;
     var id = 0;
 
     /* start queue */
-    var sq: FibRpcWsConnHash = {};
+    var sq: FibRpcConnectModule.FibRpcWsConnHash = {};
     var sq_cnt: number = 0;
 
     /* reconnect queue */
-    var rq: FibRpcWsConnHash = {};
+    var rq: FibRpcConnectModule.FibRpcWsConnHash = {};
     var rq_cnt: number = 0;
 
     function reconnect() {
@@ -23,7 +24,7 @@ const connect: FibRpcConnect = function (url: FibRpcWsConnUrl) {
         sock.onclose = () => {
             if (rq_cnt) {
                 for (var r in rq) {
-                    var o: FibRpcWsConnHashInfo = rq[r];
+                    var o: FibRpcConnectModule.FibRpcWsConnHashInfo = rq[r];
                     o.v = {
                         id: o.r.id,
                         error: {
@@ -48,7 +49,7 @@ const connect: FibRpcConnect = function (url: FibRpcWsConnUrl) {
         sock.onopen = () => {
             if (sq_cnt) {
                 for (var r in sq) {
-                    var o: FibRpcWsConnHashInfo = sq[r];
+                    var o: FibRpcConnectModule.FibRpcWsConnHashInfo = sq[r];
 
                     sock.send(JSON.stringify(o.r));
 
@@ -60,9 +61,9 @@ const connect: FibRpcConnect = function (url: FibRpcWsConnUrl) {
             }
         };
 
-        sock.onmessage = (m: FibRpcWsSocketMessage) => {
-            var v: FibRpcInvokedResult = m.json();
-            var o: FibRpcWsConnHashInfo = rq[v.id];
+        sock.onmessage = (m: FibRpcInvoke.FibRpcInvokeWsSocketMessage) => {
+            var v: FibRpc_JSONRPC.JsonRpcResponsePayload = m.json();
+            var o: FibRpcConnectModule.FibRpcWsConnHashInfo = rq[v.id];
             if (o !== undefined) {
                 delete rq[v.id];
                 rq_cnt--;
@@ -80,7 +81,7 @@ const connect: FibRpcConnect = function (url: FibRpcWsConnUrl) {
             if (!(name in target)) {
                 return target[name] = function () {
                     var _id = id++;
-                    var o: FibRpcWsConnHashInfo = {
+                    var o: FibRpcConnectModule.FibRpcWsConnHashInfo = {
                         r: {
                             id: _id,
                             method: name,

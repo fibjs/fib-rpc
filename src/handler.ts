@@ -1,9 +1,9 @@
-import { FibRpcWsSocketMessage, FibRpcCallee, FibRpcInvokeId, FibRpcCode, FibRpcInvokedResult, FibRpcFnHash, FibRpcFnPayload, FibRpcWsCallee, FibRpcHttpCallee, FibRpcInvokePayload, FibRpcInvokeArg, FibRpcHdlr, FibRpcInvoke, FibRpcHandler, JsonRpcInvokedFunction } from "../@types";
+/// <reference path="../@types/index.d.ts" />
 
 import errCodeMsg = require('./err_code_msg')
-const util = require("util");
+import util = require("util");
 
-function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRpcInvokedResult {
+function set_error(id: FibRpc.FibRpcInvokeId, code: FibRpc.FibRpcErrCodeType, message: string): FibRpc_JSONRPC.JsonRpcResponsePayload {
     return {
         id: id,
         error: {
@@ -13,9 +13,9 @@ function set_error(id: FibRpcInvokeId, code: FibRpcCode, message: string): FibRp
     };
 }
 
-const handler: FibRpcHandler = function (func: FibRpcFnPayload) {
-    const invoke: FibRpcInvoke = function (m: FibRpcInvokeArg): FibRpcInvokedResult {
-        var o: FibRpcInvokePayload;
+const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibRpcInvoke.FibRpcInvokedFunctions) {
+    const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (m: FibRpcInvoke.FibRpcInvokeArg): FibRpc_JSONRPC.JsonRpcResponsePayload {
+        var o: FibRpc_JSONRPC.JsonRpcRequestPayload;
         try {
             o = m.json();
         } catch (e) {
@@ -35,13 +35,13 @@ const handler: FibRpcHandler = function (func: FibRpcFnPayload) {
         if (!Array.isArray(params))
             return set_error(o.id, -32602, errCodeMsg["32602"]);
 
-        var f: JsonRpcInvokedFunction;
+        var f: FibRpcInvoke.JsonRpcInvokedFunction;
         if (!util.isFunction(func)) {
-            f = (func as FibRpcFnHash)[method];
+            f = (func as FibRpcInvoke.FibRpcFnHash)[method];
             if (!f)
                 return set_error(o.id, -32601, errCodeMsg["32601"]);
         } else {
-            f = (func as JsonRpcInvokedFunction);
+            f = (func as FibRpcInvoke.JsonRpcInvokedFunction);
         }
 
         var r;
@@ -58,13 +58,13 @@ const handler: FibRpcHandler = function (func: FibRpcFnPayload) {
         };
     }
 
-    const _hdr: FibRpcHdlr = function (m: FibRpcCallee) {
+    const _hdr: FibRpcHandlerModule.FibRpcHdlr = function (m: FibRpcCallee.FibRpcCalleeObject) {
         if ('onmessage' in m) {
-            (m as FibRpcWsCallee).onmessage = function (msg: FibRpcWsSocketMessage) {
+            (m as FibRpcCallee.FibRpcWsCallee).onmessage = function (msg: FibRpcInvoke.FibRpcInvokeWsSocketMessage) {
                 this.send(JSON.stringify(invoke(msg)));
             };
         } else {
-            (m as FibRpcHttpCallee).response.json(invoke(m));
+            (m as FibRpcCallee.FibRpcHttpCallee).response.json(invoke(m));
         }
     };
 
