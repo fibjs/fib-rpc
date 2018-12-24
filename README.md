@@ -1,7 +1,8 @@
 # fib-rpc
 
-[![Build Status](https://travis-ci.org/fibjs/fib-rpc.svg)](https://travis-ci.org/fibjs/fib-rpc)
 [![NPM version](https://img.shields.io/npm/v/fib-rpc.svg)](https://www.npmjs.org/package/fib-rpc)
+[![Build Status](https://travis-ci.org/fibjs/fib-rpc.svg)](https://travis-ci.org/fibjs/fib-rpc)
+[![Build status](https://ci.appveyor.com/api/projects/status/kqvsr2po0j0enlu1?svg=true)](https://ci.appveyor.com/project/richardo2016/fib-rpc)
 
 Remote Procedure Calling for fibjs
 
