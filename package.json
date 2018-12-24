@@ -1,6 +1,6 @@
 {
     "name": "fib-rpc",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib/index.js",
     "types": "@types/index.d.ts",
@@ -17,7 +17,8 @@
     "scripts": {
         "build": "fib-typify src -o lib",
         "test": "fibjs test.js",
-        "ci": "npm run build && npm run test"
+        "ci": "npm run build && npm run test",
+        "prepublishOnly": "npm run build"
     },
     "devDependencies": {
         "@fibjs/ci": "^2.1.0",

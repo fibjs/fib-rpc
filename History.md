@@ -1,7 +1,18 @@
 
-v0.2.2 / 2018-08-20
+v0.3.0 / 2018-12-24
 ==================
 
+  * support opts for `handlers`, add alias 'open_handler' for handlers with `opt.allow_anytype_params = true`.
+  * add appveyor ci config.
+  * add examples.
+  * refactor type declartions.
+  * remove dist in repo.
+  * Merge pull request #4 from richardo2016/master
+
+v0.2.2 / 2018-08-20
+===================
+
+  * Release v0.2.2
   * add '0.26.1' to ci config, and fix one type declaration
   * better type declaration.
   * Merge pull request #3 from richardo2016/master
