@@ -58,9 +58,14 @@ but in most cases, you may prefer using it with `ws.Socket`, learn about usage f
 
 View [Samples](./examples), test them like this:
 ```bash
+# build lib first.
+npm i && npm run build
+
+# chdir to examples
 cd exapmles
 npm i
 
+# run example
 fibjs ./connect.js
 fibjs ./open_handler-js.js
 ```
