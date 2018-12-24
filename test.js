@@ -1,156 +1,179 @@
-var test = require("test");
-test.setup();
+var test = require('test')
+test.setup()
 
-var rpc = require('./');
-var http = require('http');
-var ws = require('ws');
+var rpc = require('./')
+var http = require('http')
+var ws = require('ws')
 
-describe("rpc", () => {
-    var ss = [];
+describe('rpc', () => {
+  var ss = []
 
-    after(() => {
-        ss.forEach((s) => {
-            s.close();
-        });
-    });
+  after(() => {
+    ss.forEach((s) => {
+      s.close()
+    })
+  })
 
-    var jr = rpc.handler({
-        aaaa: function (p1, p2) {
-            return p1 + ',' + p2;
-        }
-    });
+  function get_call (jr) {
+    return function (r) {
+      var m = new http.Request()
 
-    function _call(r) {
-        var m = new http.Request();
+      m.value = 'test/tttt/tttt/'
+      m.json(r)
 
-        m.value = 'test/tttt/tttt/';
-        m.json(r);
+      jr(m)
 
-        jr(m);
-
-        m.response.body.rewind();
-        return m.response.readAll().toString();
+      m.response.body.rewind()
+      return m.response.readAll().toString()
     }
+  }
 
-    it("handler", () => {
-        assert.equal(_call({
-            method: 'aaaa',
-            params: [100, 200],
-            id: 1234
-        }), '{"id":1234,"result":"100,200"}');
-    });
+  describe('handler', () => {
+    var jr = rpc.handler({
+      aaaa: function (p1, p2) {
+        return p1 + ',' + p2
+      }
+    })
 
-    it("content type missing", () => {
-        var m = new http.Request();
+    var _call = get_call(jr)
 
-        m.value = 'test/tttt/tttt/';
+    it('handler', () => {
+      assert.equal(_call({
+        method: 'aaaa',
+        params: [100, 200],
+        id: 1234
+      }), '{"id":1234,"result":"100,200"}')
+    })
+
+    it('content type missing', () => {
+      var m = new http.Request()
+
+      m.value = 'test/tttt/tttt/'
+      m.body.write(JSON.stringify({
+        method: 'aaaa',
+        params: [100, 200],
+        id: 1234
+      }))
+
+      jr(m)
+
+      m.response.body.rewind()
+      assert.equal(m.response.readAll().toString(),
+        '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}')
+    })
+
+    it('content type Invalid', () => {
+      function error_call (ctype) {
+        var m = new http.Request()
+
+        m.value = 'test/tttt/tttt/'
+        m.setHeader('Content-Type', ctype)
         m.body.write(JSON.stringify({
-            method: 'aaaa',
-            params: [100, 200],
-            id: 1234
-        }));
+          method: 'aaaa',
+          params: [100, 200],
+          id: 1234
+        }))
 
-        jr(m);
+        jr(m)
 
-        m.response.body.rewind();
+        m.response.body.rewind()
         assert.equal(m.response.readAll().toString(),
-            '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}');
-    });
+          '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}')
+      }
 
-    it("content type Invalid", () => {
-        function error_call(ctype) {
-            var m = new http.Request();
-
-            m.value = 'test/tttt/tttt/';
-            m.setHeader("Content-Type", ctype);
-            m.body.write(JSON.stringify({
-                method: 'aaaa',
-                params: [100, 200],
-                id: 1234
-            }));
-
-            jr(m);
-
-            m.response.body.rewind();
-            assert.equal(m.response.readAll().toString(),
-                '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}');
-        }
-
-        ["charset=utf-8;application/json;", "application/json, charset=utf-8;", "application/json-error;"].forEach(function (ctype) {
-            error_call(ctype);
-        });
-    });
-
-    it("method missing", () => {
-        assert.equal(_call({
-            params: [100, 200],
-            id: 1234
-        }), '{"id":1234,"error":{"code":-32600,"message":"Invalid Request."}}');
-    });
-
-    it("method not exists", () => {
-        assert.equal(_call({
-            method: 'aaaa1',
-            params: [100, 200],
-            id: 1234
-        }), '{"id":1234,"error":{"code":-32601,"message":"Method not found."}}');
-    });
-
-    it("id missing", () => {
-        assert.equal(_call({
-            method: 'aaaa',
-            params: [100, 200]
-        }), '{"result":"100,200"}');
-    });
-
-    it("params missing", () => {
-        assert.equal(_call({
-            method: 'aaaa',
-            id: 1234
-        }), '{"id":1234,"result":"undefined,undefined"}');
-    });
-
-    it("Invalid params", () => {
-        assert.equal(_call({
-            method: 'aaaa',
-            params: 123,
-            id: 1234
-        }), '{"id":1234,"error":{"code":-32602,"message":"Invalid params."}}');
-    });
-
-});
-
-describe("websocket rpc", function () {
-    var svr;
-    var remoting;
-
-    before(function () {
-        svr = new http.Server(8811, ws.upgrade(rpc.handler({
-            test: function (v1, v2) {
-                return v1 + v2;
-            }
-        })));
-        svr.asyncRun();
+      ['charset=utf-8;application/json;', 'application/json, charset=utf-8;', 'application/json-error;'].forEach(function (ctype) {
+        error_call(ctype)
+      })
     })
 
-    after(function () {
-        svr.stop();
-        remoting = undefined;
+    it('method missing', () => {
+      assert.equal(_call({
+        params: [100, 200],
+        id: 1234
+      }), '{"id":1234,"error":{"code":-32600,"message":"Invalid Request."}}')
     })
 
-    it("connect", function () {
-        remoting = rpc.connect("ws://127.0.0.1:8811");
-    });
+    it('method not exists', () => {
+      assert.equal(_call({
+        method: 'aaaa1',
+        params: [100, 200],
+        id: 1234
+      }), '{"id":1234,"error":{"code":-32601,"message":"Method not found."}}')
+    })
 
-    it("test", function () {
-        assert.equal(remoting.test(1, 2), 3);
-    });
+    it('id missing', () => {
+      assert.equal(_call({
+        method: 'aaaa',
+        params: [100, 200]
+      }), '{"result":"100,200"}')
+    })
 
-    it("id not exists", function () {
-        assert.throws(function () {
-            remoting.unknown_id(1, 2);
-        });
-    });
-});
+    it('params missing', () => {
+      assert.equal(_call({
+        method: 'aaaa',
+        id: 1234
+      }), '{"id":1234,"result":"undefined,undefined"}')
+    })
 
-process.exit(test.run(console.DEBUG));
+    it('Invalid params', () => {
+      assert.equal(_call({
+        method: 'aaaa',
+        params: 123,
+        id: 1234
+      }), '{"id":1234,"error":{"code":-32602,"message":"Invalid params."}}')
+    })
+  })
+
+  describe('open_handler', () => {
+    var jr = rpc.open_handler({
+      aaaa: function (args) {
+        return args[0] + ',' + args[1]
+      }
+    })
+
+    var _call = get_call(jr)
+
+    it('open_handler', () => {
+      assert.equal(_call({
+        method: 'aaaa',
+        params: [100, 200],
+        id: 1234
+      }), '{"id":1234,"result":"100,200"}')
+    })
+  })
+})
+
+describe('websocket rpc', function () {
+  var svr
+  var remoting
+
+  before(function () {
+    svr = new http.Server(8811, ws.upgrade(rpc.handler({
+      test: function (v1, v2) {
+        return v1 + v2
+      }
+    })))
+    svr.asyncRun()
+  })
+
+  after(function () {
+    svr.stop()
+    remoting = undefined
+  })
+
+  it('connect', function () {
+    remoting = rpc.connect('ws://127.0.0.1:8811')
+  })
+
+  it('test', function () {
+    assert.equal(remoting.test(1, 2), 3)
+  })
+
+  it('id not exists', function () {
+    assert.throws(function () {
+      remoting.unknown_id(1, 2)
+    })
+  })
+})
+
+process.exit(test.run(console.DEBUG))

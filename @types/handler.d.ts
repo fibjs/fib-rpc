@@ -6,9 +6,13 @@ declare namespace FibRpcHandlerModule {
     }
 
     interface FibRpcHandlerGenerator {
-        (fn: FibRpcInvoke.FibRpcInvokedFunctions): FibRpcHdlr
+        (fn: FibRpcInvoke.FibRpcInvokedFunctions, opts?: HandlerOptions): FibRpcHdlr
     }
 
     /* @deprecated */
     type FibRpcGenerator = FibRpcHandlerGenerator
+
+    interface HandlerOptions {
+        allow_anytype_params?: boolean
+    }
 }

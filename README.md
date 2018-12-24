@@ -28,7 +28,7 @@ var js_remote = rpc.handler({
     }
 });
 
-function http_call(r) {
+function js_call(r) {
     var m = new http.Request();
 
     m.value = 'test/tttt/tttt/';
@@ -40,7 +40,7 @@ function http_call(r) {
     return m.response.readAll().toString();
 }
 
-var result = http_call({
+var result = js_call({
     // method is required
     method: 'foo',
     // params is required and must be array
@@ -56,7 +56,14 @@ but in most cases, you may prefer using it with `ws.Socket`, learn about usage f
 
 ## Samples
 
-View [Samples](./examples)
+View [Samples](./examples), test them like this:
+```bash
+cd exapmles
+npm i
+
+fibjs ./connect.js
+fibjs ./open_handler-js.js
+```
 
 [test.js]:test.js#L123:1
 

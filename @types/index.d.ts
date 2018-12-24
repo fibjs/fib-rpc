@@ -8,6 +8,7 @@
 declare module "fib-rpc" {
     module FibRpcModule {
         export const handler: FibRpcHandlerModule.FibRpcHandlerGenerator
+        export const open_handler: FibRpcHandlerModule.FibRpcHandlerGenerator
         export const connect: FibRpcConnectModule.FibRpcConnect
     }
 
