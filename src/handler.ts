@@ -44,7 +44,7 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibR
             f = (func as FibRpcInvoke.JsonRpcInvokedFunction);
         }
 
-        var r;
+        var r: FibRpc.FibRpcResultData;
         try {
             r = f.apply(m, params);
         } catch (e) {

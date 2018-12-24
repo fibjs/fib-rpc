@@ -53,6 +53,10 @@ assert.equal(result, '{"id":1234,"result":"100,200"}');
 
 but in most cases, you may prefer using it with `ws.Socket`, learn about usage from test case `'websocket rpc'` in [test.js].
 
+## Samples
+
+View [Samples](./examples)
+
 [test.js]:test.js#L123:1
 
 [JSON-RPC]:https://www.jsonrpc.org/specification#overview
