@@ -133,45 +133,76 @@ describe('rpc', () => {
 
     var _call = get_call(jr)
 
-    it('open_handler', () => {
+    it('params: array', () => {
       assert.equal(_call({
         method: 'aaaa',
         params: [100, 200],
         id: 1234
       }), '{"id":1234,"result":"100,200"}')
     })
+
+    it('params: object', () => {
+      assert.equal(_call({
+        method: 'aaaa',
+        params: {0: 1, 1: 0},
+        id: 1234
+      }), '{"id":1234,"result":"1,0"}')
+    })
   })
 })
 
 describe('websocket rpc', function () {
-  var svr
-  var remoting
+  var svrs = []
+  var remotings = []
 
   before(function () {
-    svr = new http.Server(8811, ws.upgrade(rpc.handler({
+    svrs[0] = new http.Server(8811, ws.upgrade(rpc.handler({
       test: function (v1, v2) {
         return v1 + v2
       }
     })))
-    svr.asyncRun()
+
+    svrs[1] = new http.Server(8812, ws.upgrade(rpc.open_handler({
+      test: function (args) {
+        return args.v1 + args.v2
+      }
+    })))
+    
+    svrs.forEach(srv => srv.asyncRun())
   })
 
   after(function () {
-    svr.stop()
-    remoting = undefined
+    svrs.forEach(srv => srv.stop())
+
+    remotings = []
   })
 
   it('connect', function () {
-    remoting = rpc.connect('ws://127.0.0.1:8811')
+    remotings[0] = rpc.connect('ws://127.0.0.1:8811')
+    remotings[1] = rpc.open_connect('ws://127.0.0.1:8812')
   })
 
   it('test', function () {
-    assert.equal(remoting.test(1, 2), 3)
+    assert.equal(remotings[0].test(1, 2), 3)
+    assert.equal(remotings[0].test({v1: 1, v2: 2}), '[object Object]undefined')
+    
+    assert.throws(() => {
+      assert.equal(rpc.open_connect('ws://127.0.0.1:8811').test({v1: 1, v2: 2}), 3)
+    })
+    
+    assert.equal(remotings[1].test({v1: 1, v2: 2}), 3)
   })
 
-  it('id not exists', function () {
+  it('special test', function () {
+    // arguments ---sliced---> [NaN, null] ---json_encode---> [null, null] ---> null + null -> 0
+    assert.strictEqual(remotings[0].test(NaN, null), 0)
+    assert.strictEqual(remotings[0].test(null, null), 0)
+    assert.strictEqual(remotings[0].test(null, NaN), 0)
+  })
+
+  it('method not exists', function () {
     assert.throws(function () {
-      remoting.unknown_id(1, 2)
+      remotings[0].unknown_method(1, 2)
     })
   })
 })

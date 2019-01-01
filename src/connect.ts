@@ -7,9 +7,13 @@ const slice = Array.prototype.slice;
 
 import errCodeMsg = require('./err_code_msg');
 
-const connect: FibRpcConnectModule.FibRpcConnect = function (url: FibRpcConnectModule.FibRpcWsConnUrl) {
+const connect: FibRpcConnectModule.FibRpcConnect = function (
+    url: FibRpcConnectModule.FibRpcWsConnUrl,
+    opts?: FibRpcConnectModule.ConnectOptions
+): FibRpcInvoke.FibRpcInvokeClient {
     var sock: ws.Socket;
     var id = 0;
+    var { open: _open_handler = false } = opts || {};
 
     /* send queue */
     var sq: FibRpcConnectModule.FibRpcWsConnHash = {};
@@ -81,11 +85,12 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (url: FibRpcConnectM
             if (!(name in target)) {
                 return target[name] = function () {
                     var _id = id++;
+                    var params = slice.call(arguments, 0)
                     var o: FibRpcConnectModule.FibRpcWsConnHashInfo = {
                         r: {
                             id: _id,
                             method: name,
-                            params: slice.call(arguments, 0)
+                            params: _open_handler ? params[0] : params
                         },
                         e: new coroutine.Event()
                     };

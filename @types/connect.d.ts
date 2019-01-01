@@ -15,6 +15,14 @@ declare namespace FibRpcConnectModule {
     }
 
     interface FibRpcConnect {
-        (url: FibRpcWsConnUrl): FibRpcInvoke.FibRpcInvokeClient
+        (url: FibRpcWsConnUrl, opts?: ConnectOptions): FibRpcInvoke.FibRpcInvokeClient
+    }
+
+    interface ConnectOptions {
+        /**
+         * whether connect remote json-rpc server which'is open,
+         * see details `FibRpcHandlerModule.HandlerOptions.allow_anytype_params`
+         */
+        open?: boolean
     }
 }
