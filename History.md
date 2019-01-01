@@ -1,7 +1,17 @@
 
-v0.3.0 / 2018-12-24
+v0.4.0 / 2019-01-01
 ==================
 
+  * add examples about open_handler; update doc.
+  * add exposed member 'open_connect'.
+  * correct comment.
+  * update doc.
+  * add examples to .npmignore
+
+v0.3.0 / 2018-12-24
+===================
+
+  * Release v0.3.0
   * support opts for `handlers`, add alias 'open_handler' for handlers with `opt.allow_anytype_params = true`.
   * add appveyor ci config.
   * add examples.
