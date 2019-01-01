@@ -52,7 +52,30 @@ var result = js_call({
 assert.equal(result, '{"id":1234,"result":"100,200"}');
 ```
 
-but in most cases, you may prefer using it with `ws.Socket`, learn about usage from test case `'websocket rpc'` in [test.js].
+but in most cases, you may prefer using it with `ws.Socket`.
+```javascript
+const ws = require('ws')
+const http = require('http')
+
+const rpc = require('fib-rpc')
+
+const svr = new http.Server(8811, ws.upgrade(
+    rpc.handler(
+        {
+            test: function (v1, v2) {
+                return v1 + v2;
+            }
+        }
+    ))
+);
+svr.asyncRun();
+
+const remoting = rpc.connect("ws://127.0.0.1:8811");
+
+remoting.test(1, 2) // 3
+```
+
+Learn `connect` from test case `'websocket rpc'` in [exmaple](./examples/connect.js).
 
 ## Samples
 
