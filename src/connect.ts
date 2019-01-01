@@ -11,11 +11,11 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (url: FibRpcConnectM
     var sock: ws.Socket;
     var id = 0;
 
-    /* start queue */
+    /* send queue */
     var sq: FibRpcConnectModule.FibRpcWsConnHash = {};
     var sq_cnt: number = 0;
 
-    /* reconnect queue */
+    /* response queue */
     var rq: FibRpcConnectModule.FibRpcWsConnHash = {};
     var rq_cnt: number = 0;
 
