@@ -1,0 +1,5 @@
+src/**
+tests/**
+rollup.config.js
+
+dist/tests.bundle**
