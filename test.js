@@ -24,7 +24,7 @@ describe('rpc', () => {
       jr(m)
 
       m.response.body.rewind()
-      return m.response.readAll().toString()
+      return m.response
     }
   }
 
@@ -38,11 +38,14 @@ describe('rpc', () => {
     var _call = get_call(jr)
 
     it('handler', () => {
-      assert.equal(_call({
-        method: 'aaaa',
-        params: [100, 200],
-        id: 1234
-      }), '{"id":1234,"result":"100,200"}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa',
+          params: [100, 200],
+          id: 1234
+        }).json(),
+        {"id":1234,"result":"100,200"}
+      )
     })
 
     it('content type missing', () => {
@@ -58,69 +61,94 @@ describe('rpc', () => {
       jr(m)
 
       m.response.body.rewind()
-      assert.equal(m.response.readAll().toString(),
-        '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}')
+      assert.deepEqual(
+        m.response.json(),
+        {"id":-1,"error":{"code":-32700,"message":"Parse error."}}
+      )
     })
 
-    it('content type Invalid', () => {
+    describe('content type Invalid', () => {
       function error_call (ctype) {
         var m = new http.Request()
 
         m.value = 'test/tttt/tttt/'
         m.setHeader('Content-Type', ctype)
-        m.body.write(JSON.stringify({
+        m.write(JSON.stringify({
           method: 'aaaa',
           params: [100, 200],
           id: 1234
         }))
 
-        jr(m)
+        jr(m);
 
         m.response.body.rewind()
-        assert.equal(m.response.readAll().toString(),
-          '{"id":-1,"error":{"code":-32700,"message":"Parse error."}}')
+        assert.deepEqual(
+          m.response.json(),
+          {"id":-1,"error":{"code":-32700,"message":"Parse error."}}
+        )
       }
 
-      ['charset=utf-8;application/json;', 'application/json, charset=utf-8;', 'application/json-error;'].forEach(function (ctype) {
-        error_call(ctype)
+      ;[
+        'charset=utf-8;application/json;',
+        'application/json, charset=utf-8;',
+        'application/json-error;'
+      ].forEach(function (ctype) {
+        it(`invalid Content-Type: ${ctype}`, function () {
+          error_call(ctype)
+        });
       })
     })
 
     it('method missing', () => {
-      assert.equal(_call({
-        params: [100, 200],
-        id: 1234
-      }), '{"id":1234,"error":{"code":-32600,"message":"Invalid Request."}}')
+      assert.deepEqual(
+        _call({
+          params: [100, 200],
+          id: 1234
+        }).json(),
+        {"id":1234,"error":{"code":-32600,"message":"Invalid Request."}}
+      )
     })
 
     it('method not exists', () => {
-      assert.equal(_call({
-        method: 'aaaa1',
-        params: [100, 200],
-        id: 1234
-      }), '{"id":1234,"error":{"code":-32601,"message":"Method not found."}}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa1',
+          params: [100, 200],
+          id: 1234
+        }).json(),
+        {"id":1234,"error":{"code":-32601,"message":"Method not found."}}
+      )
     })
 
     it('id missing', () => {
-      assert.equal(_call({
-        method: 'aaaa',
-        params: [100, 200]
-      }), '{"result":"100,200"}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa',
+          params: [100, 200]
+        }).json(),
+        {"result":"100,200"}
+      )
     })
 
     it('params missing', () => {
-      assert.equal(_call({
-        method: 'aaaa',
-        id: 1234
-      }), '{"id":1234,"result":"undefined,undefined"}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa',
+          id: 1234
+        }).json(),
+        {"id":1234,"result":"undefined,undefined"}
+      )
     })
 
     it('Invalid params', () => {
-      assert.equal(_call({
-        method: 'aaaa',
-        params: 123,
-        id: 1234
-      }), '{"id":1234,"error":{"code":-32602,"message":"Invalid params."}}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa',
+          params: 123,
+          id: 1234
+        }).json(),
+        {"id":1234,"error":{"code":-32602,"message":"Invalid params."}}
+      )
     })
   })
 
@@ -134,19 +162,25 @@ describe('rpc', () => {
     var _call = get_call(jr)
 
     it('params: array', () => {
-      assert.equal(_call({
-        method: 'aaaa',
-        params: [100, 200],
-        id: 1234
-      }), '{"id":1234,"result":"100,200"}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa',
+          params: [100, 200],
+          id: 1234
+        }).json(),
+        {"id":1234,"result":"100,200"}
+      )
     })
 
     it('params: object', () => {
-      assert.equal(_call({
-        method: 'aaaa',
-        params: {0: 1, 1: 0},
-        id: 1234
-      }), '{"id":1234,"result":"1,0"}')
+      assert.deepEqual(
+        _call({
+          method: 'aaaa',
+          params: {0: 1, 1: 0},
+          id: 1234
+        }).json(),
+        {"id":1234,"result":"1,0"}
+      )
     })
   })
 })

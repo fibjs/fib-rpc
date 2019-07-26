@@ -21,10 +21,10 @@
         "prepublishOnly": "npm run build"
     },
     "devDependencies": {
-        "@fibjs/ci": "^2.1.0",
+        "@fibjs/ci": "^2.2.0",
         "@fibjs/detect-port": "^1.0.2",
-        "@types/fibjs": "^0.26.5",
-        "fib-typify": "^0.4.1"
+        "@fibjs/types": "^0.27.1",
+        "fib-typify": "^0.6.0"
     },
     "ci": {
         "type": "travis, appveyor",
@@ -34,7 +34,8 @@
             "0.23.0",
             "0.24.0",
             "0.25.0",
-            "0.26.1"
+            "0.26.1",
+            "0.27.0"
         ]
     },
     "dependencies": {}
