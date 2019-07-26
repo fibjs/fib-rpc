@@ -6,7 +6,7 @@
 declare namespace FibRpcJsonRpcSpec {
     type JsonRpcId = number | string;
 
-    interface JsonRpcPredefinedCodeMessages {
+    interface PredefinedCodeMessages {
         '-32600': "Invalid Request.",
         '-32601': "Method not found.",
         '-32602': "Invalid params.",
@@ -22,26 +22,26 @@ declare namespace FibRpcJsonRpcSpec {
         '-32000': 'Server disconnected.'        
     }
 
-    type JsonRpcPrimitive = string | number | boolean | null
+    type Primitive = string | number | boolean | null
     interface AnyObject {
         [key: string]: any;
     }
-    type JsonRpcParamArrayType = (
-        JsonRpcPrimitive | AnyObject | Array<JsonRpcPrimitive | AnyObject>
+    type ParamArrayType = (
+        Primitive | AnyObject | Array<Primitive | AnyObject>
     )[]
 
-    interface JsonRpcPayloadBase {
+    interface PayloadBase {
         id: JsonRpcId
         jsonrpc?: "2.0" | string
     }
 
-    interface JsonRpcRequestPayload extends JsonRpcPayloadBase {
+    interface RequestPayload extends PayloadBase {
         method?: string;
-        params?: AnyObject | JsonRpcParamArrayType
+        params?: AnyObject | ParamArrayType
     }
 
-    type JsonRpcResponsePayload = ({
-        error?: FibRpc.FibRpcError
-        result?: FibRpc.FibRpcResultData
-    } & JsonRpcPayloadBase)
+    type ResponsePayload<TRESULT = any, TErrData = any> = ({
+        error?: FibRpc.FibRpcError<TErrData>
+        result?: TRESULT
+    } & PayloadBase)
 }

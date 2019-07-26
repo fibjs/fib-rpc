@@ -6,7 +6,7 @@ declare namespace FibRpc {
     type FibRpcInvokeId = FibRpcJsonRpcSpec.JsonRpcId;
 
     type JsonRpcSpreadArguments = (
-        FibRpcJsonRpcSpec.JsonRpcPrimitive | FibRpcJsonRpcSpec.AnyObject
+        FibRpcJsonRpcSpec.Primitive | FibRpcJsonRpcSpec.AnyObject
     )[]
 
     interface FibRpcError<TErrData = any> {
@@ -17,7 +17,7 @@ declare namespace FibRpc {
 
     class RpcErrorClass<TErrData = any> extends Error implements FibRpcError<TErrData> {
         constructor (input:
-            keyof FibRpcJsonRpcSpec.JsonRpcPredefinedCodeMessages
+            keyof FibRpcJsonRpcSpec.PredefinedCodeMessages
             | keyof FibRpcJsonRpcSpec.FibRpcPredefinedCodeMessages
             | FibRpcError<TErrData>
         );
@@ -26,5 +26,11 @@ declare namespace FibRpc {
         data?: TErrData
     }
 
-    type FibRpcResultData = any
+    interface rpcError {
+        (
+            code: FibRpc.FibRpcError['code'] | string,
+            message?: FibRpc.FibRpcError['message'],
+            data?: FibRpc.FibRpcError['data'],
+        ): FibRpc.RpcErrorClass
+    }
 }

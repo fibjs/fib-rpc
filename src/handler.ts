@@ -24,8 +24,8 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
     
     const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (
         m: FibRpcInvoke.FibRpcInvokeArg
-    ): FibRpcJsonRpcSpec.JsonRpcResponsePayload {
-        let o: FibRpcJsonRpcSpec.JsonRpcRequestPayload;
+    ): FibRpcJsonRpcSpec.ResponsePayload {
+        let o: FibRpcJsonRpcSpec.RequestPayload;
         try {
             o = m.json();
         } catch (e) {
@@ -56,7 +56,7 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
             f = (func as FibRpcInvoke.JsonRpcInvokedFunction);
         }
 
-        let r: FibRpc.FibRpcResultData;
+        let r: any;
         try {
             r = f[allow_anytype_params ? 'call' : 'apply'](m, params);
         } catch (e) {

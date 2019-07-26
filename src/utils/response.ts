@@ -5,7 +5,7 @@ export function setRpcError(
     code: FibRpc.FibRpcError['code'],
     message: string = getMessageByCode(filterCodeType(code), code),
     data?: FibRpc.FibRpcError['data']
-): FibRpcJsonRpcSpec.JsonRpcResponsePayload {
+): FibRpcJsonRpcSpec.ResponsePayload {
     return {
         id: id,
         error: { code, message, data }

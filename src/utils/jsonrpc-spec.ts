@@ -2,7 +2,7 @@
 /**
  * @see https://www.jsonrpc.org/specification
  */
-const SPEC_CODE_MESSAGES: FibRpcJsonRpcSpec.JsonRpcPredefinedCodeMessages = {
+const SPEC_CODE_MESSAGES: FibRpcJsonRpcSpec.PredefinedCodeMessages = {
     '-32600': "Invalid Request.",
     '-32601': "Method not found.",
     '-32602': "Invalid params.",

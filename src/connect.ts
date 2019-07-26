@@ -62,7 +62,7 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
         };
 
         sock.onmessage = (m: FibRpcInvoke.FibRpcInvokeWsSocketMessage) => {
-            const v: FibRpcJsonRpcSpec.JsonRpcResponsePayload = m.json();
+            const v: FibRpcJsonRpcSpec.ResponsePayload = m.json();
             const o: FibRpcConnectModule.FibRpcWsCoroutinePayload = rq[v.id];
             if (o !== undefined) {
                 delete rq[v.id];

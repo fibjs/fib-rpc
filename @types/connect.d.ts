@@ -6,8 +6,8 @@ declare namespace FibRpcConnectModule {
 
     interface FibRpcWsCoroutinePayload {
         e: Class_Event
-        r?: FibRpcJsonRpcSpec.JsonRpcRequestPayload
-        v?: FibRpcJsonRpcSpec.JsonRpcResponsePayload
+        r?: FibRpcJsonRpcSpec.RequestPayload
+        v?: FibRpcJsonRpcSpec.ResponsePayload
     }
     interface FibRpcWsConnHash {
         /* connName is just FibRpcInvokeId */
