@@ -1,7 +1,8 @@
+import ws = require('ws')
 import http = require('http')
 
-export function isWebsocket (m: FibRpcCallee.CalleeObject): m is FibRpcCallee.WsCallee {
-    // 'onmessage' is in prototype of FibRpcCallee.WsCallee
+export function isWebsocket (m: FibRpcCallee.CalleeObject): m is FibRpcCallee.WebSocketCallee {
+    // 'onmessage' is in prototype of FibRpcCallee.WebSocketCallee
     return 'onmessage' in m
 }
 

@@ -17,8 +17,7 @@ declare namespace FibRpcInvoke {
         (m: FibRpcInvokeArg): FibRpcJsonRpcSpec.ResponsePayload
     }
 
-    interface FibRpcInvokeWsSocketMessage extends Class_WebSocketMessage {
-    }
+    interface FibRpcInvokeWsSocketMessage extends Class_WebSocketMessage {}
 
     interface FibRpcInvokeClient {
         [method_name: string]: Function

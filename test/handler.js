@@ -6,17 +6,7 @@ var http = require('http')
 var ws = require('ws')
 
 function get_call (jr) {
-  return function (r) {
-    var m = new http.Request()
-
-    m.value = 'test/tttt/tttt/'
-    m.json(r)
-
-    jr(m)
-
-    m.response.body.rewind()
-    return m.response
-  }
+  return (r) => rpc.httpCall(jr, r)
 }
 
 describe('rpc', () => {
@@ -355,7 +345,7 @@ describe('websocket rpc', function () {
   
       it('from http request', () => {
         assert.deepEqual(
-          _calls.spread({
+          rpc.httpCall(handlers.spread, {
             method: 'integerAdd',
             params: [1.1, 2],
             id: 1234
@@ -443,7 +433,7 @@ describe('websocket rpc', function () {
   
       it('from http request', () => {
         assert.deepEqual(
-          _calls.open({
+          rpc.httpCall(handlers.open, {
             method: 'integerAdd',
             params: {v1: 1.1, v2: 2},
             id: 1234

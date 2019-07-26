@@ -4,6 +4,7 @@
 /// <reference path="jsonrpc.d.ts" />
 /// <reference path="handler.d.ts" />
 /// <reference path="connect.d.ts" />
+/// <reference path="call.d.ts" />
 
 declare module "fib-rpc" {
     module FibRpcModule {
@@ -13,6 +14,7 @@ declare module "fib-rpc" {
         export const open_connect: FibRpcConnectModule.FibRpcConnect
 
         export const rpcError: FibRpc.rpcError
+        export const httpCall: FibRpcCallor.httpCall
     }
 
     export = FibRpcModule

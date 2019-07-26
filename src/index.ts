@@ -9,3 +9,5 @@ export { connect }
 export { open_handler, open_connect } from './open';
 
 export { rpcError } from './error';
+
+export { httpCall } from './call';
