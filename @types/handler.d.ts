@@ -3,11 +3,11 @@
 
 declare namespace FibRpcHandlerModule {
     interface FibRpcHdlr {
-        (m: FibRpcCallee.FibRpcCalleeBase): void;
+        (m: FibRpcCallee.CalleeObject): void;
     }
 
     interface FibRpcHandlerGenerator {
-        (fn: FibRpcInvoke.FibRpcInvokedFunctions, opts?: HandlerOptions): FibRpcHdlr
+        (fn: FibRpcInvoke.FibRpcHandlerFunctions, opts?: HandlerOptions): FibRpcHdlr
     }
 
     /* @deprecated */

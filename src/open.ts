@@ -1,7 +1,7 @@
 import * as handler from "./handler";
 import * as connect from "./connect";
 
-export function open_handler (funcs: FibRpcInvoke.FibRpcInvokedFunctions, opts: FibRpcHandlerModule.HandlerOptions) {
+export function open_handler (funcs: FibRpcInvoke.FibRpcHandlerFunctions, opts: FibRpcHandlerModule.HandlerOptions) {
     return handler(funcs, {...opts, allow_anytype_params: true})
 }
 

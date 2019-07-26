@@ -4,15 +4,13 @@
 /// <reference path="_invoke.d.ts" />
 
 declare namespace FibRpcCallee {
-    interface FibRpcCalleeBase extends Fibjs.AnyObject {
-        id: FibRpc.FibRpcInvokeId;
+    interface CalleeBase extends Fibjs.AnyObject {
+        id?: FibRpc.FibRpcInvokeId;
     }
     
-    interface FibRpcWsCallee extends Class_WebSocket, FibRpcCalleeBase {}
+    interface WsCallee extends Class_WebSocket, CalleeBase {}
 
-    interface FibRpcHttpCallee extends Class_HttpRequest, FibRpcCalleeBase {
-        json(): FibRpcJsonRpcSpec.JsonRpcRequestPayload;
-    }
+    interface HttpCallee extends Class_HttpRequest, CalleeBase {}
 
-    type FibRpcCalleeObject = FibRpcCallee.FibRpcHttpCallee | FibRpcCallee.FibRpcWsCallee
+    type CalleeObject = HttpCallee | WsCallee
 }

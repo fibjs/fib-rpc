@@ -5,9 +5,10 @@ import util = require("util");
 import { RpcError } from './error'
 import { setRpcError } from "./utils/response";
 import { mergeServerDefinedCodeMessages } from "./utils/jsonrpc-spec";
+import { isWebsocket, isHttpRequest } from "./utils/callee";
 
 const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
-    func: FibRpcInvoke.FibRpcInvokedFunctions,
+    func: FibRpcInvoke.FibRpcHandlerFunctions,
     opts: FibRpcHandlerModule.HandlerOptions = {}
 ) {
     const {
@@ -21,20 +22,22 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
 
     server_error_messages = mergeServerDefinedCodeMessages(server_error_messages)
     
-    const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (m: FibRpcInvoke.FibRpcInvokeArg): FibRpcJsonRpcSpec.JsonRpcResponsePayload {
-        var o: FibRpcJsonRpcSpec.JsonRpcRequestPayload;
+    const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (
+        m: FibRpcInvoke.FibRpcInvokeArg
+    ): FibRpcJsonRpcSpec.JsonRpcResponsePayload {
+        let o: FibRpcJsonRpcSpec.JsonRpcRequestPayload;
         try {
             o = m.json();
         } catch (e) {
             return setRpcError(-1, -32700);
         }
 
-        var method = o.method;
+        const method = o.method;
 
         if (!method)
             return setRpcError(o.id, -32600);
 
-        var params = o.params;
+        let params = o.params;
 
         if (!allow_anytype_params) {
             if (params === undefined)
@@ -44,7 +47,7 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
                 return setRpcError(o.id, -32602);
         }
 
-        var f: FibRpcInvoke.JsonRpcInvokedFunction;
+        let f: FibRpcInvoke.JsonRpcInvokedFunction;
         if (!util.isFunction(func)) {
             f = (func as FibRpcInvoke.FibRpcFnHash)[method];
             if (!f)
@@ -53,7 +56,7 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
             f = (func as FibRpcInvoke.JsonRpcInvokedFunction);
         }
 
-        var r: FibRpc.FibRpcResultData;
+        let r: FibRpc.FibRpcResultData;
         try {
             r = f[allow_anytype_params ? 'call' : 'apply'](m, params);
         } catch (e) {
@@ -77,16 +80,18 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
         };
     }
 
-    const _hdr: FibRpcHandlerModule.FibRpcHdlr = function (m: FibRpcCallee.FibRpcCalleeObject) {
-        if ('onmessage' in m) {
-            (m as FibRpcCallee.FibRpcWsCallee).onmessage = function (msg: FibRpcInvoke.FibRpcInvokeWsSocketMessage) {
+    const _hdr: FibRpcHandlerModule.FibRpcHdlr = function (m: FibRpcCallee.CalleeObject) {
+        if (isWebsocket(m))
+            m.onmessage = function (
+                this: typeof m,
+                msg: FibRpcInvoke.FibRpcInvokeWsSocketMessage
+            ) {
                 this.send(JSON.stringify(invoke(msg)));
-            };
-        } else {
-            (m as FibRpcCallee.FibRpcHttpCallee).response.json(
-                invoke(m)
-            );
-        }
+            }
+        else if (isHttpRequest(m))
+            m.response.json(invoke(m));
+        else
+            throw new Error('invalid callee object passed!')
     };
 
     return _hdr;

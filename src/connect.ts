@@ -3,6 +3,7 @@
 import ws = require("ws");
 import coroutine = require("coroutine");
 import { setRpcError } from "./utils/response";
+import { RpcError } from "./error";
 
 const connect: FibRpcConnectModule.FibRpcConnect = function (
     url: FibRpcConnectModule.FibRpcWsConnUrl,
@@ -10,7 +11,10 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
 ): FibRpcInvoke.FibRpcInvokeClient {
     let sock: Class_WebSocket;
     let id = 0;
-    const { open: _open_handler = false } = opts || {};
+    const {
+        open: use_open_handler = false,
+        log_error_stack = true
+    } = opts || {};
 
     /* send queue */
     let sq: FibRpcConnectModule.FibRpcWsConnHash = {};
@@ -38,7 +42,8 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
         };
 
         sock.onerror = (evt: Class_EventInfo) => {
-            console.error(evt);
+            if (log_error_stack)
+                console.error(evt);
         };
 
         sock.onopen = () => {
@@ -81,7 +86,7 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
                         r: {
                             id: _id,
                             method: name,
-                            params: _open_handler ? params[0] : params
+                            params: use_open_handler ? params[0] : params
                         },
                         e: new coroutine.Event()
                     };

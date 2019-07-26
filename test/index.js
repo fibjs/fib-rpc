@@ -3,6 +3,8 @@ test.setup()
 
 var rpc = require('../')
 
+if (!require.main) require.main = module
+
 describe('modules', () => {
   describe('#rpcError', () => {
     assert.isFunction(rpc.rpcError)

@@ -24,5 +24,9 @@ declare namespace FibRpcConnectModule {
          * see details `FibRpcHandlerModule.HandlerOptions.allow_anytype_params`
          */
         open?: boolean
+        /**
+         * @default true
+         */
+        log_error_stack?: boolean
     }
 }

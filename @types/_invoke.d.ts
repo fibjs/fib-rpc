@@ -10,15 +10,14 @@ declare namespace FibRpcInvoke {
         [fnName: string]: JsonRpcInvokedFunction
     }
 
-    type FibRpcInvokeArg = FibRpcCallee.FibRpcHttpCallee | FibRpcInvokeWsSocketMessage
-    type FibRpcInvokedFunctions = JsonRpcInvokedFunction | FibRpcFnHash
+    type FibRpcInvokeArg = FibRpcCallee.HttpCallee | FibRpcInvokeWsSocketMessage
+    type FibRpcHandlerFunctions = JsonRpcInvokedFunction | FibRpcFnHash
 
     interface FibRpcInvokeInternalFunction {
         (m: FibRpcInvokeArg): FibRpcJsonRpcSpec.JsonRpcResponsePayload
     }
 
     interface FibRpcInvokeWsSocketMessage extends Class_WebSocketMessage {
-        json(): FibRpcJsonRpcSpec.JsonRpcRequestPayload
     }
 
     interface FibRpcInvokeClient {

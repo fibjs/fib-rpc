@@ -5,6 +5,20 @@ var rpc = require('../')
 var http = require('http')
 var ws = require('ws')
 
+function get_call (jr) {
+  return function (r) {
+    var m = new http.Request()
+
+    m.value = 'test/tttt/tttt/'
+    m.json(r)
+
+    jr(m)
+
+    m.response.body.rewind()
+    return m.response
+  }
+}
+
 describe('rpc', () => {
   var ss = []
 
@@ -13,20 +27,6 @@ describe('rpc', () => {
       s.close()
     })
   })
-
-  function get_call (jr) {
-    return function (r) {
-      var m = new http.Request()
-
-      m.value = 'test/tttt/tttt/'
-      m.json(r)
-
-      jr(m)
-
-      m.response.body.rewind()
-      return m.response
-    }
-  }
 
   describe('handler: method dictionary', () => {
     describe('basic handler', () => {
@@ -291,59 +291,188 @@ describe('rpc', () => {
 })
 
 describe('websocket rpc', function () {
-  var svrs = []
-  var remotings = []
+  var svrs = {}
+  var handlers = {}
+  var remotings = {}
+  var _calls = {}
 
-  before(function () {
-    svrs[0] = new http.Server(8811, ws.upgrade(rpc.handler({
-      test: function (v1, v2) {
-        return v1 + v2
-      }
-    })))
-
-    svrs[1] = new http.Server(8812, ws.upgrade(rpc.open_handler({
-      test: function (args) {
-        return args.v1 + args.v2
-      }
-    })))
-    
-    svrs.forEach(srv => srv.asyncRun())
-  })
-
-  after(function () {
-    svrs.forEach(srv => srv.stop())
-
-    remotings = []
-  })
-
-  it('connect', function () {
-    remotings[0] = rpc.connect('ws://127.0.0.1:8811')
-    remotings[1] = rpc.open_connect('ws://127.0.0.1:8812')
-  })
-
-  it('test', function () {
-    assert.equal(remotings[0].test(1, 2), 3)
-    assert.equal(remotings[0].test({v1: 1, v2: 2}), '[object Object]undefined')
-    
-    assert.throws(() => {
-      assert.equal(rpc.open_connect('ws://127.0.0.1:8811').test({v1: 1, v2: 2}), 3)
+  describe('spread handler', () => {
+    before(function () {
+      handlers.spread = rpc.handler({
+        test: function (v1, v2) {
+          return v1 + v2
+        },
+        integerAdd: function (v1, v2) {
+          if (!Number.isInteger(v1) || !Number.isInteger(v2))
+              throw rpc.rpcError(4010000, 'Addend must be integer')
+                      
+          return v1 + v2
+        }
+      }, {
+        log_error_stack: false,
+        server_error_messages: {
+          4010000: '[handler]Addend must be integer'
+        }
+      });
+  
+      _calls.spread = get_call(handlers.spread);
+      
+      svrs.spread = new http.Server(8811, ws.upgrade(handlers.spread))
+      svrs.spread.asyncRun()
     })
-    
-    assert.equal(remotings[1].test({v1: 1, v2: 2}), 3)
-  })
-
-  it('special test', function () {
-    // arguments ---sliced---> [NaN, null] ---json_encode---> [null, null] ---> null + null -> 0
-    assert.strictEqual(remotings[0].test(NaN, null), 0)
-    assert.strictEqual(remotings[0].test(null, null), 0)
-    assert.strictEqual(remotings[0].test(null, NaN), 0)
-  })
-
-  it('method not exists', function () {
-    assert.throws(function () {
-      remotings[0].unknown_method(1, 2)
+  
+    after(function () {
+      svrs.spread.stop()
+  
+      remotings = {}
     })
-  })
+  
+    it('connect', function () {
+      remotings.spread = rpc.connect('ws://127.0.0.1:8811')
+    })
+  
+    it('remote: test', function () {
+      assert.equal(remotings.spread.test(1, 2), 3)
+      assert.equal(remotings.spread.test({v1: 1, v2: 2}), '[object Object]undefined')
+      
+      assert.throws(() => {
+        assert.equal(rpc.open_connect('ws://127.0.0.1:8811').test({v1: 1, v2: 2}), 3)
+      })
+    })
+  
+    describe('remote: integerAdd', function () {
+      it('correct params', () => {
+        assert.equal(remotings.spread.integerAdd(1, 2), 3)
+      });
+  
+      it('catch error', () => {
+        try {
+          remotings.spread.integerAdd(1.1, 2)
+        } catch (err_msg) {
+          assert.equal(err_msg, 'Addend must be integer')
+        }
+      });
+  
+      it('from http request', () => {
+        assert.deepEqual(
+          _calls.spread({
+            method: 'integerAdd',
+            params: [1.1, 2],
+            id: 1234
+          }).json(),
+          {
+            "id":1234,
+            "error":{
+              "code": 4010000,
+              "message": "Addend must be integer"
+            }
+          }
+        );
+      });
+    })
+  
+    it('special test', function () {
+      // arguments ---sliced---> [NaN, null] ---json_encode---> [null, null] ---> null + null -> 0
+      assert.strictEqual(remotings.spread.test(NaN, null), 0)
+      assert.strictEqual(remotings.spread.test(null, null), 0)
+      assert.strictEqual(remotings.spread.test(null, NaN), 0)
+    })
+  
+    it('method not exists', function () {
+      assert.throws(function () {
+        remotings.spread.unknown_method(1, 2)
+      })
+    })
+  });
+
+  describe('open handler', () => {
+    before(function () {
+      handlers.open = rpc.open_handler({
+        test: function (args) {
+          return args.v1 + args.v2
+        },
+        integerAdd: function (args) {
+          if (!Number.isInteger(args.v1) || !Number.isInteger(args.v2))
+              throw rpc.rpcError(4010000)
+                      
+          return args.v1 + args.v2
+        },
+      }, {
+        log_error_stack: false,
+        server_error_messages: {
+          4010000: '[open_handler]Addend must be integer'
+        }
+      });
+  
+      _calls.open = get_call(handlers.open);
+      
+      svrs.open = new http.Server(8812, ws.upgrade(handlers.open))
+      svrs.open.asyncRun()
+    })
+  
+    after(function () {
+      svrs.open.stop()
+  
+      remotings = {}
+    })
+  
+    it('connect', function () {
+      remotings.open = rpc.open_connect('ws://127.0.0.1:8812')
+    })
+  
+    it('remote: test', function () {
+      assert.throws(() => {
+        assert.equal(rpc.connect('ws://127.0.0.1:8812').test({v1: 1, v2: 2}), 3)
+      })
+      
+      assert.equal(remotings.open.test({v1: 1, v2: 2}), 3)
+    })
+  
+    describe('remote: integerAdd', function () {
+      it('correct params', () => {
+        assert.equal(remotings.open.integerAdd({v1: 1, v2: 2}), 3)
+      });
+  
+      it('catch error', () => {
+        try {
+          remotings.open.integerAdd({ v1: 1.1, v2: 2})
+        } catch (err_msg) {
+          assert.equal(err_msg, '[open_handler]Addend must be integer')
+        }
+      });
+  
+      it('from http request', () => {
+        assert.deepEqual(
+          _calls.open({
+            method: 'integerAdd',
+            params: {v1: 1.1, v2: 2},
+            id: 1234
+          }).json(),
+          {
+            "id":1234,
+            "error":{
+              "code": 4010000,
+              "message": "[open_handler]Addend must be integer"
+            }
+          }
+        );
+      });
+    })
+  
+    it('special test', function () {
+      // arguments ---sliced---> [NaN, null] ---json_encode---> [null, null] ---> null + null -> 0
+      assert.strictEqual(remotings.open.test({ v1: NaN, v2: null }), 0)
+      assert.strictEqual(remotings.open.test({ v1: null, v2: null }), 0)
+      assert.strictEqual(remotings.open.test({ v1: null, v2: NaN }), 0)
+    })
+  
+    it('method not exists', function () {
+      assert.throws(function () {
+        remotings.open.unknown_method({})
+      })
+    })
+  });
 })
 
-process.exit(test.run(console.DEBUG))
+if (require.main === module)
+  process.exit(test.run(console.DEBUG))

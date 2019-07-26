@@ -52,7 +52,7 @@ var result = js_call({
 assert.equal(result, '{"id":1234,"result":"100,200"}');
 ```
 
-but in most cases, you may prefer using it with `ws.Socket`.
+but in most cases, you may prefer using it based on `Websocket`, which finshied by `rpc.connect`
 ```javascript
 const ws = require('ws')
 const http = require('http')
@@ -76,6 +76,43 @@ remoting.test(1, 2) // 3
 ```
 
 Learn `connect` from test case `'websocket rpc'` in [exmaple](./examples/connect.js).
+
+### Custom Errors
+
+use `RpcError` as typed Error thrown if required:
+
+```javascript
+const rpc = require('fib-rpc')
+
+const js_remote = rpc.handler(
+    {
+        integerAdd: function (v1, v2) {
+            if (!Number.isInteger(v1) || !Number.isInteger(v2))
+                throw rpc.rpcError(4010000, 'Addend must be integer')
+                
+            return v1 + v2;
+        }
+    }
+);
+
+const svr = new http.Server(8811, ws.upgrade(js_remote));
+
+const remoting = rpc.connect("ws://127.0.0.1:8811");
+
+try {
+    remoting.integerAdd(1.1, 2)
+} catch (err_msg) {
+    console.log(err_msg) // 'Addend must be integer'
+}
+
+console.log(
+    js_call({
+        method: 'foo',
+        params: [1.1, 2],
+        id: 1234
+    })
+) // code: 4010000, message: 'Addend must be integer'
+```
 
 ## Samples
 
