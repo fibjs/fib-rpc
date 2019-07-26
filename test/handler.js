@@ -184,6 +184,79 @@ describe('rpc', () => {
         )
       })
     })
+
+    describe('errors', () => {
+      var jr = rpc.open_handler({
+        Unauthorized: function (args) {
+          throw rpc.rpcError(1, 'Unauthorized')
+        },
+        NotAllowed: function (args) {
+          throw rpc.rpcError(2)
+        },
+        ExeError: function (args) {
+          throw rpc.rpcError(3, 'Execution error 2')
+        }
+      }, {
+        log_error_stack: false,
+        server_error_messages: {
+          2: 'Action not allowed',
+          3: 'Execution error'
+        }
+      });
+
+      var _call = get_call(jr)
+
+      it('custom errors -- specified when throwing', () => {
+        assert.deepEqual(
+          _call({
+            method: 'Unauthorized',
+            params: {},
+            id: 1234
+          }).json(),
+          {
+            "id":1234,
+            "error": {
+              code: 1,
+              message: "Unauthorized"
+            }
+          }
+        )
+      });
+
+      it('custom errors -- specified by `server_error_messages`', () => {
+        assert.deepEqual(
+          _call({
+            method: 'NotAllowed',
+            params: {},
+            id: 1234
+          }).json(),
+          {
+            "id":1234,
+            "error": {
+              code: 2,
+              message: "Action not allowed"
+            }
+          }
+        )
+      });
+
+      it('custom errors -- specified by `server_error_messages` but also provided when throwing', () => {
+        assert.deepEqual(
+          _call({
+            method: 'ExeError',
+            params: {},
+            id: 1234
+          }).json(),
+          {
+            "id":1234,
+            "error": {
+              code: 3,
+              message: "Execution error 2"
+            }
+          }
+        )
+      });
+    })
   })
 
   describe('handler: function', () => {

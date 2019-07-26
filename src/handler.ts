@@ -2,10 +2,24 @@
 
 import util = require("util");
 
-import { setRpcError } from './error'
+import { RpcError } from './error'
+import { setRpcError } from "./utils/response";
+import { mergeServerDefinedCodeMessages } from "./utils/jsonrpc-spec";
 
-const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibRpcInvoke.FibRpcInvokedFunctions, opts: FibRpcHandlerModule.HandlerOptions = {}) {
-    const {allow_anytype_params = false} = opts || {}
+const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
+    func: FibRpcInvoke.FibRpcInvokedFunctions,
+    opts: FibRpcHandlerModule.HandlerOptions = {}
+) {
+    const {
+        allow_anytype_params = false,
+        log_error_stack = true,
+    } = opts || {}
+
+    let {
+        server_error_messages = {}
+    } = opts || {}
+
+    server_error_messages = mergeServerDefinedCodeMessages(server_error_messages)
     
     const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (m: FibRpcInvoke.FibRpcInvokeArg): FibRpcJsonRpcSpec.JsonRpcResponsePayload {
         var o: FibRpcJsonRpcSpec.JsonRpcRequestPayload;
@@ -43,7 +57,17 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibR
         try {
             r = f[allow_anytype_params ? 'call' : 'apply'](m, params);
         } catch (e) {
-            console.error(e.stack);
+            if (log_error_stack)
+                console.error(e.stack);
+
+            if (e instanceof RpcError)
+                return setRpcError(
+                    o.id,
+                    e.code,
+                    e.message || server_error_messages[e.code],
+                    e.data
+                )
+                
             return setRpcError(o.id, -32603);
         }
 

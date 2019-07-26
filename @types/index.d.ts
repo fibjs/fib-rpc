@@ -11,7 +11,11 @@ declare module "fib-rpc" {
         export const open_handler: FibRpcHandlerModule.FibRpcHandlerGenerator
         export const connect: FibRpcConnectModule.FibRpcConnect
 
-        export const RpcError: typeof FibRpc.RpcErrorClass
+        export function rpcError (
+            code: FibRpc.FibRpcError['code'] | string,
+            message?: FibRpc.FibRpcError['message'],
+            data?: FibRpc.FibRpcError['data'],
+        ): FibRpc.RpcErrorClass
     }
 
     export = FibRpcModule

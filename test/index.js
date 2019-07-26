@@ -4,8 +4,8 @@ test.setup()
 var rpc = require('../')
 
 describe('modules', () => {
-  describe('#RpcError', () => {
-    assert.isFunction(rpc.RpcError)
+  describe('#rpcError', () => {
+    assert.isFunction(rpc.rpcError)
 
     var errObj
     ;[
@@ -49,22 +49,22 @@ describe('modules', () => {
       if (is_reserved) {
         it(`reserved_code: ${err_code} -- not usable, throw error`, () => {
           assert.throws(() => {
-            new rpc.RpcError(err_code)
+            rpc.rpcError(err_code)
           })
         })
       } else if (is_custom) {
         it(`error_code: ${err_code} --> msg: ${message} [valid custom code]`, () => {
-          errObj = new rpc.RpcError({ code: err_code, message });
-          assert.propertyVal(errObj, 'code', parseInt(err_code));
-          assert.propertyVal(errObj, 'message', message);
+          // errObj = rpc.rpcError({ code: err_code, message });
+          // assert.propertyVal(errObj, 'code', parseInt(err_code));
+          // assert.propertyVal(errObj, 'message', message);
 
-          errObj = new rpc.RpcError(err_code, message);
+          errObj = rpc.rpcError(err_code, message);
           assert.propertyVal(errObj, 'code', parseInt(err_code));
           assert.propertyVal(errObj, 'message', message);
         });
       } else {
         it(`error_code: ${err_code} --> msg: ${message}`, () => {
-          errObj = new rpc.RpcError(err_code, Date.now() + '');
+          errObj = rpc.rpcError(err_code, Date.now() + '');
           assert.propertyVal(errObj, 'code', parseInt(err_code));
           assert.propertyVal(errObj, 'message', message);
         });

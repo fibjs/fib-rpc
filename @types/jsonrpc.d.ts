@@ -14,10 +14,12 @@ declare namespace FibRpcJsonRpcSpec {
         '-32700': "Parse error."
     }
 
-    interface FibRpcPredefinedCodeMessages {
-        '-32000': 'Server disconnected.'
+    interface ServerPrefefinedCodeMessages {
+        [k: string]: string
+    }
 
-        [k: number]: string
+    interface FibRpcPredefinedCodeMessages extends ServerPrefefinedCodeMessages {
+        '-32000': 'Server disconnected.'        
     }
 
     type JsonRpcPrimitive = string | number | boolean | null
