@@ -1,7 +1,7 @@
 var test = require('test')
 test.setup()
 
-var rpc = require('./')
+var rpc = require('../')
 var http = require('http')
 var ws = require('ws')
 

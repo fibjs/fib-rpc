@@ -1,3 +1,4 @@
+/// <reference path="_common.d.ts" />
 /// <reference path="_invoke.d.ts" />
 
 declare namespace FibRpcHandlerModule {

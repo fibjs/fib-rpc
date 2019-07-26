@@ -2,7 +2,7 @@
     "name": "fib-rpc",
     "version": "0.4.0",
     "description": "Remote Procedure Calling for fibjs",
-    "main": "lib/index.js",
+    "main": "lib",
     "types": "@types/index.d.ts",
     "repository": "git://github.com/fibjs/fib-rpc.git",
     "author": "Liu Hu <lion@9465.net>",
@@ -16,7 +16,7 @@
     ],
     "scripts": {
         "build": "fib-typify src -o lib",
-        "test": "fibjs test.js",
+        "test": "fibjs test",
         "ci": "npm run build && npm run test",
         "prepublishOnly": "npm run build"
     },

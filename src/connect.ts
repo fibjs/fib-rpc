@@ -3,39 +3,31 @@
 import ws = require("ws");
 import coroutine = require("coroutine");
 
-const slice = Array.prototype.slice;
-
-import errCodeMsg = require('./err_code_msg');
+import { setRpcError } from './error'
 
 const connect: FibRpcConnectModule.FibRpcConnect = function (
     url: FibRpcConnectModule.FibRpcWsConnUrl,
     opts?: FibRpcConnectModule.ConnectOptions
 ): FibRpcInvoke.FibRpcInvokeClient {
-    var sock: ws.Socket;
-    var id = 0;
-    var { open: _open_handler = false } = opts || {};
+    let sock: Class_WebSocket;
+    let id = 0;
+    const { open: _open_handler = false } = opts || {};
 
     /* send queue */
-    var sq: FibRpcConnectModule.FibRpcWsConnHash = {};
-    var sq_cnt: number = 0;
+    let sq: FibRpcConnectModule.FibRpcWsConnHash = {};
+    let sq_cnt: number = 0;
 
     /* response queue */
-    var rq: FibRpcConnectModule.FibRpcWsConnHash = {};
-    var rq_cnt: number = 0;
+    let rq: FibRpcConnectModule.FibRpcWsConnHash = {};
+    let rq_cnt: number = 0;
 
     function reconnect() {
         sock = new ws.Socket(url);
         sock.onclose = () => {
             if (rq_cnt) {
-                for (var r in rq) {
-                    var o: FibRpcConnectModule.FibRpcWsConnHashInfo = rq[r];
-                    o.v = {
-                        id: o.r.id,
-                        error: {
-                            code: -32000,
-                            message: errCodeMsg["32000"]
-                        }
-                    };
+                for (const r in rq) {
+                    const o: FibRpcConnectModule.FibRpcWsCoroutinePayload = rq[r];
+                    o.v = setRpcError(o.r.id, -32000);
                     o.e.set();
                 }
 
@@ -46,14 +38,14 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
             reconnect();
         };
 
-        sock.onerror = (evt) => {
+        sock.onerror = (evt: Class_EventInfo) => {
             console.error(evt);
         };
 
         sock.onopen = () => {
             if (sq_cnt) {
-                for (var r in sq) {
-                    var o: FibRpcConnectModule.FibRpcWsConnHashInfo = sq[r];
+                for (const r in sq) {
+                    const o: FibRpcConnectModule.FibRpcWsCoroutinePayload = sq[r];
 
                     sock.send(JSON.stringify(o.r));
 
@@ -66,8 +58,8 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
         };
 
         sock.onmessage = (m: FibRpcInvoke.FibRpcInvokeWsSocketMessage) => {
-            var v: FibRpc_JSONRPC.JsonRpcResponsePayload = m.json();
-            var o: FibRpcConnectModule.FibRpcWsConnHashInfo = rq[v.id];
+            const v: FibRpcJsonRpcSpec.JsonRpcResponsePayload = m.json();
+            const o: FibRpcConnectModule.FibRpcWsCoroutinePayload = rq[v.id];
             if (o !== undefined) {
                 delete rq[v.id];
                 rq_cnt--;
@@ -84,9 +76,9 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
         get: (target, name: string) => {
             if (!(name in target)) {
                 return target[name] = function () {
-                    var _id = id++;
-                    var params = slice.call(arguments, 0)
-                    var o: FibRpcConnectModule.FibRpcWsConnHashInfo = {
+                    const _id = id++;
+                    const params = Array.prototype.slice.call(arguments, 0)
+                    const o: FibRpcConnectModule.FibRpcWsCoroutinePayload = {
                         r: {
                             id: _id,
                             method: name,

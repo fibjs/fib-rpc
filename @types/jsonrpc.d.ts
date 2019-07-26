@@ -1,37 +1,45 @@
-declare namespace FibRpc_JSONRPC {
+/// <reference path="_common.d.ts" />
+
+/**
+ * @see https://www.jsonrpc.org/specification
+ */
+declare namespace FibRpcJsonRpcSpec {
     type JsonRpcId = number | string;
 
-    interface JsonRpcCodeMessage {
-        32000: 'Server disconnected.',
-        32600: "Invalid Request.",
-        32601: "Method not found.",
-        32602: "Invalid params.",
-        32603: "Internal error.",
-        32700: "Parse error."
+    interface JsonRpcPredefinedCodeMessages {
+        '-32600': "Invalid Request.",
+        '-32601': "Method not found.",
+        '-32602': "Invalid params.",
+        '-32603': "Internal error.",
+        '-32700': "Parse error."
     }
 
-    type JsonRpcCodes = keyof JsonRpcCodeMessage
+    interface FibRpcPredefinedCodeMessages {
+        '-32000': 'Server disconnected.'
+
+        [k: number]: string
+    }
 
     type JsonRpcPrimitive = string | number | boolean | null
-    interface JsonRpcParamObjectType {
+    interface AnyObject {
         [key: string]: any;
     }
-    type JsonRpcParamArrayType = (JsonRpcPrimitive | JsonRpcParamObjectType | Array<JsonRpcPrimitive | JsonRpcParamObjectType>)[]
-    type JsonRpcParamsType = JsonRpcParamObjectType | JsonRpcParamArrayType
+    type JsonRpcParamArrayType = (
+        JsonRpcPrimitive | AnyObject | Array<JsonRpcPrimitive | AnyObject>
+    )[]
 
-    interface JsonRpcCommonPayload {
+    interface JsonRpcPayloadBase {
         id: JsonRpcId
-        // allow it empty
         jsonrpc?: "2.0" | string
     }
 
-    interface JsonRpcRequestPayload extends JsonRpcCommonPayload {
+    interface JsonRpcRequestPayload extends JsonRpcPayloadBase {
         method?: string;
-        params?: JsonRpcParamsType
+        params?: AnyObject | JsonRpcParamArrayType
     }
 
-    interface JsonRpcResponsePayload extends JsonRpcCommonPayload {
+    type JsonRpcResponsePayload = ({
         error?: FibRpc.FibRpcError
         result?: FibRpc.FibRpcResultData
-    }
+    } & JsonRpcPayloadBase)
 }

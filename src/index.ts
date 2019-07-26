@@ -8,3 +8,4 @@ export { connect }
 
 export { open_handler, open_connect } from './open';
 
+export { RpcError } from './error';

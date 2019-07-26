@@ -4,14 +4,14 @@
 declare namespace FibRpcConnectModule {
     type FibRpcWsConnUrl = string;
 
-    interface FibRpcWsConnHashInfo {
+    interface FibRpcWsCoroutinePayload {
         e: Class_Event
-        r?: FibRpc_JSONRPC.JsonRpcRequestPayload
-        v?: FibRpc_JSONRPC.JsonRpcResponsePayload
+        r?: FibRpcJsonRpcSpec.JsonRpcRequestPayload
+        v?: FibRpcJsonRpcSpec.JsonRpcResponsePayload
     }
     interface FibRpcWsConnHash {
         /* connName is just FibRpcInvokeId */
-        [connName: string]: FibRpcWsConnHashInfo
+        [connName: string]: FibRpcWsCoroutinePayload
     }
 
     interface FibRpcConnect {

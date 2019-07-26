@@ -1,33 +1,24 @@
 /// <reference path="../@types/index.d.ts" />
 
-import errCodeMsg = require('./err_code_msg')
 import util = require("util");
 
-function set_error(id: FibRpc.FibRpcInvokeId, code: FibRpc.FibRpcErrCodeType, message: string): FibRpc_JSONRPC.JsonRpcResponsePayload {
-    return {
-        id: id,
-        error: {
-            code: code,
-            message: message
-        }
-    };
-}
+import { setRpcError } from './error'
 
 const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibRpcInvoke.FibRpcInvokedFunctions, opts: FibRpcHandlerModule.HandlerOptions = {}) {
     const {allow_anytype_params = false} = opts || {}
     
-    const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (m: FibRpcInvoke.FibRpcInvokeArg): FibRpc_JSONRPC.JsonRpcResponsePayload {
-        var o: FibRpc_JSONRPC.JsonRpcRequestPayload;
+    const invoke: FibRpcInvoke.FibRpcInvokeInternalFunction = function (m: FibRpcInvoke.FibRpcInvokeArg): FibRpcJsonRpcSpec.JsonRpcResponsePayload {
+        var o: FibRpcJsonRpcSpec.JsonRpcRequestPayload;
         try {
             o = m.json();
         } catch (e) {
-            return set_error(-1, -32700, errCodeMsg["32700"]);
+            return setRpcError(-1, -32700);
         }
 
         var method = o.method;
 
         if (!method)
-            return set_error(o.id, -32600, errCodeMsg["32600"]);
+            return setRpcError(o.id, -32600);
 
         var params = o.params;
 
@@ -36,14 +27,14 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibR
                 params = [];
 
             if (!Array.isArray(params))
-                return set_error(o.id, -32602, errCodeMsg["32602"]);
+                return setRpcError(o.id, -32602);
         }
 
         var f: FibRpcInvoke.JsonRpcInvokedFunction;
         if (!util.isFunction(func)) {
             f = (func as FibRpcInvoke.FibRpcFnHash)[method];
             if (!f)
-                return set_error(o.id, -32601, errCodeMsg["32601"]);
+                return setRpcError(o.id, -32601);
         } else {
             f = (func as FibRpcInvoke.JsonRpcInvokedFunction);
         }
@@ -53,7 +44,7 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibR
             r = f[allow_anytype_params ? 'call' : 'apply'](m, params);
         } catch (e) {
             console.error(e.stack);
-            return set_error(o.id, -32603, errCodeMsg["32603"]);
+            return setRpcError(o.id, -32603);
         }
 
         return {
@@ -68,7 +59,9 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (func: FibR
                 this.send(JSON.stringify(invoke(msg)));
             };
         } else {
-            (m as FibRpcCallee.FibRpcHttpCallee).response.json(invoke(m));
+            (m as FibRpcCallee.FibRpcHttpCallee).response.json(
+                invoke(m)
+            );
         }
     };
 

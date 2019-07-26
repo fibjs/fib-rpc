@@ -3,7 +3,7 @@
 
 declare namespace FibRpcInvoke {
     interface JsonRpcInvokedFunction {
-        (...params: FibRpc.JsonRpcRestStyleParamsType): any
+        (...params: FibRpc.JsonRpcSpreadArguments): any
     }
 
     type FibRpcFnHash = {
@@ -14,11 +14,11 @@ declare namespace FibRpcInvoke {
     type FibRpcInvokedFunctions = JsonRpcInvokedFunction | FibRpcFnHash
 
     interface FibRpcInvokeInternalFunction {
-        (m: FibRpcInvokeArg): FibRpc_JSONRPC.JsonRpcResponsePayload
+        (m: FibRpcInvokeArg): FibRpcJsonRpcSpec.JsonRpcResponsePayload
     }
 
     interface FibRpcInvokeWsSocketMessage extends Class_WebSocketMessage {
-        json(): FibRpc_JSONRPC.JsonRpcRequestPayload
+        json(): FibRpcJsonRpcSpec.JsonRpcRequestPayload
     }
 
     interface FibRpcInvokeClient {
