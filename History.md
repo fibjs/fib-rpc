@@ -1,7 +1,19 @@
 
-v0.4.0 / 2019-01-01
+v0.5.0 / 2019-07-27
 ==================
 
+  * add exported member `httpCall`.
+  * simplify typos.
+  * add test case and docs about rpcError
+  * support custom errors.
+  * refactor typos, add exposed member `RpcError`.
+  * add test about handler  from function.
+  * robust about test; upgrade dependencies.
+
+v0.4.0 / 2019-01-01
+===================
+
+  * Release v0.4.0
   * add examples about open_handler; update doc.
   * add exposed member 'open_connect'.
   * correct comment.
