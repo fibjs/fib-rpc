@@ -6,7 +6,7 @@ declare namespace FibRpcCallor {
     interface httpCall {
         (
             js_remote: FibRpcHandlerModule.FibRpcHdlr,
-            request_data: FibRpcJsonRpcSpec.RequestPayload
+            request_data: FibRpcJsonRpcSpec.RequestPayload | Class_HttpRequest
         ): Class_HttpResponse
     }
 }

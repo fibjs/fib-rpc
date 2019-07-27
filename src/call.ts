@@ -1,14 +1,18 @@
-import ws = require('ws')
+/// <reference path="../@types/index.d.ts" />
+
 import http = require('http')
 
 export const httpCall: FibRpcCallor.httpCall = (js_remote, r) => {
-    const http_m = new http.Request();
-
-    http_m.value = '';
-    http_m.json(r);
+    let http_m = null
+    if (r instanceof http.Request) {
+        http_m = r
+    } else {
+        http_m = new http.Request();
+        http_m.value = '';
+        http_m.json(r);
+    }
 
     js_remote(http_m);
 
-    http_m.response.body.rewind();
     return http_m.response;
 }
