@@ -1,7 +1,13 @@
 
-v0.5.0 / 2019-07-27
+v0.5.1 / 2019-07-27
 ==================
 
+  * better `FibRpcCallor.httpCall`
+
+v0.5.0 / 2019-07-27
+===================
+
+  * Release v0.5.0
   * add exported member `httpCall`.
   * simplify typos.
   * add test case and docs about rpcError
