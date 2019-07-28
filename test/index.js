@@ -77,6 +77,4 @@ describe('modules', () => {
 
 require('./handler')
 
-process.exit(
-  test.run(console.DEBUG)
-)
+test.run(console.DEBUG)

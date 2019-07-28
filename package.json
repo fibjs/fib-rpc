@@ -3,6 +3,8 @@
     "version": "0.5.2",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib",
+    "unpkg": "./dist/index.js",
+    "jsdelivr": "./dist/index.js",
     "types": "@types/index.d.ts",
     "repository": "git://github.com/fibjs/fib-rpc.git",
     "author": "Liu Hu <lion@9465.net>",
@@ -15,8 +17,8 @@
         "fibjs"
     ],
     "scripts": {
-        "build": "fib-typify src -o lib",
-        "test": "fibjs test",
+        "build": "fibjs build.js",
+        "test": "fibjs test/_entry.js",
         "ci": "npm run build && npm run test",
         "prepublishOnly": "npm run build"
     },
@@ -24,7 +26,9 @@
         "@fibjs/ci": "^2.2.0",
         "@fibjs/detect-port": "^1.0.2",
         "@fibjs/types": "^0.27.1",
-        "fib-typify": "^0.6.0"
+        "fib-rollup": "^0.4.0",
+        "fib-typify": "^0.6.0",
+        "rollup-plugin-commonjs": "^10.0.1"
     },
     "ci": {
         "type": "travis, appveyor",
