@@ -31,7 +31,7 @@ export function filterCodeType (code: FibRpc.FibRpcError['code']) {
         if (SPEC_CODE_MESSAGES.hasOwnProperty(code))
             ctype = CodeTypes['re_predefined']
         else if (code >= -32099)
-            ctype = CodeTypes['re_server_implementation_defined']
+            ctype = CodeTypes['re_server_implementation']
     } else
         ctype = CodeTypes['custom']
 
@@ -53,7 +53,7 @@ export function getMessageByCode (
         case CodeTypes['re_predefined']:
             message = SPEC_CODE_MESSAGES[code]
             break
-        case CodeTypes['re_server_implementation_defined']:
+        case CodeTypes['re_server_implementation']:
             message = SERVER_CODE_MESSAGES[code] || DEFAULT_SERVER_ERR
             break
         case CodeTypes['custom']:
