@@ -3,7 +3,7 @@
 import ws = require("ws");
 import coroutine = require("coroutine");
 import { setRpcError } from "./utils/response";
-import { RpcError } from "./error";
+import { rpcError } from "./error";
 
 const connect: FibRpcConnectModule.FibRpcConnect = function (
     url: FibRpcConnectModule.FibRpcWsConnUrl,
@@ -13,7 +13,8 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
     let id = 0;
     const {
         open: use_open_handler = false,
-        log_error_stack = true
+        log_error_stack = true,
+        throw_error = false
     } = opts || {};
 
     /* send queue */
@@ -103,8 +104,16 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
 
                     o.e.wait();
 
-                    if (o.v.error)
-                        throw o.v.error.message;
+                    if (o.v.error) {
+                        if (!throw_error)
+                            throw o.v.error.message;
+                        else
+                            throw rpcError(
+                                o.v.error.code,
+                                o.v.error.message,
+                                o.v.error.data
+                            );
+                    }
 
                     return o.v.result;
                 };
@@ -112,7 +121,7 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
             return target[name];
         },
         set: (target, name: string, value) => {
-            throw '"' + name + '" is read-only.';
+            throw `"${name}" is read-only.`;
         }
     });
 };

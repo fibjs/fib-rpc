@@ -28,5 +28,10 @@ declare namespace FibRpcConnectModule {
          * @default true
          */
         log_error_stack?: boolean
+        /**
+         * @description whether throw real Error object rather than message
+         * @default false
+         */
+        throw_error?: boolean
     }
 }
