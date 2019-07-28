@@ -17,8 +17,11 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
     } = opts || {}
 
     let {
-        server_error_messages = {}
+        server_error_messages = {},
+        interceptor = undefined
     } = opts || {}
+
+    const shouldSelect = typeof interceptor === 'function'
 
     server_error_messages = mergeServerDefinedCodeMessages(server_error_messages)
     
@@ -32,7 +35,7 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
             return setRpcError(-1, -32700);
         }
 
-        const method = o.method;
+        let method = o.method;
 
         if (!method)
             return setRpcError(o.id, -32600);
@@ -47,13 +50,27 @@ const handler: FibRpcHandlerModule.FibRpcHandlerGenerator = function (
                 return setRpcError(o.id, -32602);
         }
 
+        let selected;
+
         let f: FibRpcInvoke.JsonRpcInvokedFunction;
-        if (!util.isFunction(func)) {
-            f = (func as FibRpcInvoke.FibRpcFnHash)[method];
+        if (typeof func !== 'function') {
+            f = func[method];
+            
+            if (typeof f !== 'function' && (selected = shouldSelect && interceptor(o))) {
+                switch (typeof selected) {
+                    case 'string':
+                        f = func[selected];
+                        break
+                    case 'function':
+                        f = selected
+                        break
+                }
+            }
+
             if (!f)
                 return setRpcError(o.id, -32601);
         } else {
-            f = (func as FibRpcInvoke.JsonRpcInvokedFunction);
+            f = func;
         }
 
         let r: any;

@@ -26,5 +26,12 @@ declare namespace FibRpcHandlerModule {
          * @default {}
          */
         server_error_messages?: FibRpcJsonRpcSpec.ServerPrefefinedCodeMessages
+        /**
+         * @description Select method to response
+         * @default undefined
+         */
+        interceptor?: {
+            (reqInfo: FibRpcJsonRpcSpec.RequestPayload): string | FibRpcInvoke.JsonRpcInvokedFunction
+        }
     }
 }

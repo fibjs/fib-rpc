@@ -462,7 +462,64 @@ describe('websocket rpc', function () {
       })
     })
   });
-})
+});
+
+describe('@interceptor', () => {
+  describe('handler', () => {
+    var handler = null;
+    var svr = null;
+    var remoting = null;
+
+    before(function () {
+      handler = rpc.handler({
+        test: function (v1, v2) {
+          return v1 + v2
+        },
+        integerAdd: function (v1, v2) {
+          if (!Number.isInteger(v1) || !Number.isInteger(v2))
+              throw rpc.rpcError(4010000, 'Addend must be integer')
+                      
+          return v1 + v2
+        },
+        concat: function (v1, v2) {
+          if (!Number.isInteger(v1) || !Number.isInteger(v2))
+              throw rpc.rpcError(4010000, 'Addend must be integer')
+                      
+          return `${v1},${v2}`
+        }
+      }, {
+        log_error_stack: false,
+        interceptor () {
+          return 'integerAdd'
+        }
+      });
+      
+      svr = new http.Server(8811, ws.upgrade(handler));
+      svr.asyncRun();
+
+      remoting = rpc.connect('ws://127.0.0.1:8811');
+    });
+
+    after(() => {
+      svr.stop()
+    });
+
+    it('invoke method declared', () => {
+      assert.equal(remoting['concat'](1, 2), '1,2')
+    });
+
+    it('invoke fallback method as method incorrect', () => {
+
+      assert.equal(remoting['concatXXX'](1, 2), 3)
+
+      try {
+        remoting['concatXXX'](1.1, 2)
+      } catch (err_msg) {
+        assert.equal(err_msg, 'Addend must be integer')
+      }
+    });
+  });
+});
 
 if (require.main === module)
   process.exit(test.run(console.DEBUG))
