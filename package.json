@@ -1,6 +1,6 @@
 {
     "name": "fib-rpc",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib",
     "types": "@types/index.d.ts",

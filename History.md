@@ -1,7 +1,13 @@
 
-v0.5.1 / 2019-07-27
+v0.5.2 / 2019-07-28
 ==================
 
+  * support HandlerOptions['interceptor']
+
+v0.5.1 / 2019-07-27
+===================
+
+  * Release v0.5.1
   * better `FibRpcCallor.httpCall`
 
 v0.5.0 / 2019-07-27
