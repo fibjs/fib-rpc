@@ -2,7 +2,7 @@
 
 import ws = require("ws");
 import coroutine = require("coroutine");
-import { setRpcError } from "./utils/response";
+import { setRpcError } from "./isomorph/response";
 import { rpcError } from "./error";
 
 const connect: FibRpcConnectModule.FibRpcConnect = function (

@@ -1,6 +1,6 @@
 /// <reference path="../@types/index.d.ts" />
 
-import { filterCodeType, CodeTypes, getMessageByCode } from "./utils/jsonrpc-spec";
+import { filterCodeType, CodeTypes, getMessageByCode } from "./isomorph/jsonrpc-spec";
 
 /**
  * @notice once predefined errMsgs provided, message is determined by code absolutely.
