@@ -33,5 +33,14 @@ declare namespace FibRpcConnectModule {
          * @default false
          */
         throw_error?: boolean
+        /**
+         * @description options passed to `new ws.Socket(url, options)`
+         * @default undefined 
+         */
+        ws_options?: Fibjs.AnyObject | {
+            (
+                ctx_info: {url: string}
+            ): Fibjs.AnyObject | undefined
+        }
     }
 }

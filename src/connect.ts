@@ -14,8 +14,11 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
     const {
         open: use_open_handler = false,
         log_error_stack = true,
-        throw_error = false
+        throw_error = false,
+        ws_options = undefined
     } = opts || {};
+
+    const get_ws_options = typeof ws_options === 'function' ? ws_options : () => ws_options
 
     /* send queue */
     let sq: FibRpcConnectModule.FibRpcWsConnHash = {};
@@ -26,7 +29,7 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
     let rq_cnt: number = 0;
 
     function reconnect() {
-        sock = new ws.Socket(url);
+        sock = new ws.Socket(url, get_ws_options({ url }));
         sock.onclose = () => {
             if (rq_cnt) {
                 for (const r in rq) {
@@ -78,7 +81,7 @@ const connect: FibRpcConnectModule.FibRpcConnect = function (
     reconnect();
 
     return new Proxy({}, {
-        get: (target, name: string) => {
+        get: (target: Fibjs.AnyObject, name: string) => {
             if (!(name in target)) {
                 return target[name] = function () {
                     const _id = id++;
