@@ -23,7 +23,7 @@
         "prepublishOnly": "npm run build"
     },
     "devDependencies": {
-        "@fibjs/ci": "^2.2.0",
+        "@fibjs/ci": "^2.3.0",
         "@fibjs/detect-port": "^1.0.2",
         "@fibjs/types": "^0.27.1",
         "fib-rollup": "^0.4.0",
