@@ -1,7 +1,18 @@
 
-v0.5.2 / 2019-07-28
+v0.5.3 / 2019-07-30
 ==================
 
+  * upgrade @fibjs/ci
+  * feat: support ConnectOptions['ws_options']
+  * add compressed dist.
+  * little fix.
+  * adjust source tree.
+  * support ConnectOptions['throw_error']
+
+v0.5.2 / 2019-07-28
+===================
+
+  * Release v0.5.2
   * support HandlerOptions['interceptor']
 
 v0.5.1 / 2019-07-27

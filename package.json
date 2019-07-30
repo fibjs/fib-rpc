@@ -1,6 +1,6 @@
 {
     "name": "fib-rpc",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "description": "Remote Procedure Calling for fibjs",
     "main": "lib",
     "unpkg": "./dist/index.js",
