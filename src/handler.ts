@@ -2,7 +2,7 @@
 
 import util = require("util");
 
-import { RpcError } from './error'
+import { RpcError } from './isomorph/error'
 import { setRpcError } from "./isomorph/response";
 import { mergeServerDefinedCodeMessages } from "./isomorph/jsonrpc-spec";
 import { isWebsocket, isHttpRequest } from "./utils/callee";

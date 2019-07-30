@@ -3,7 +3,7 @@
 import ws = require("ws");
 import coroutine = require("coroutine");
 import { setRpcError } from "./isomorph/response";
-import { rpcError } from "./error";
+import { rpcError } from "./isomorph/error";
 
 const connect: FibRpcConnectModule.FibRpcConnect = function (
     url: FibRpcConnectModule.FibRpcWsConnUrl,
